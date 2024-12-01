@@ -1,0 +1,11 @@
+# filename stuff
+--restrict-filenames
+--trim-filenames 128
+
+# subs by default
+#--sub-lang en
+#--write-auto-sub
+#--embed-sub
+
+# disable vp9 because we lack hw accel
+-f "137+140/bestvideo[vcodec!~='(vp0?9|av0?1)'][id!=299]+bestaudio/best"
