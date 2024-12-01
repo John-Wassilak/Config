@@ -1,0 +1,89 @@
+#+title: Email Client Config
+#+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/email.el
+
+* Email Client Config (Mu4e)
+
+** Mu4e config
+
+#+begin_src emacs-lisp
+
+  (use-package mu4e
+    :load-path "/usr/share/emacs/site-lisp/mu4e/"
+    :defer 20 ; Wait until 20 secs after startup
+    :config
+
+    ;; This is set to 't' to avoid mail syncing issues when using mbsync
+    (setq mu4e-change-filenames-when-moving t)
+
+    ;; Refresh mail using isync every 30 minutes
+    (setq mu4e-update-interval (* 30 60))
+    (setq mu4e-get-mail-command "mbsync -a")
+    (setq mu4e-maildir "~/Mail")
+
+    (setq mu4e-contexts
+	(list
+	 ;; Work account
+	 (make-mu4e-context
+	  :name "Gmail"
+	  :match-func
+	    (lambda (msg)
+	      (when msg
+		(string-prefix-p "/Gmail" (mu4e-message-field msg :maildir))))
+	  :vars '((user-mail-address . "cobus.jjimjilbang@gmail.com")
+		  (user-full-name    . "Cobus Jjimjilbang")
+		  (mu4e-drafts-folder  . "/Gmail/[Gmail]/Drafts")
+		  (mu4e-sent-folder  . "/Gmail/[Gmail]/Sent Mail")
+		  (mu4e-refile-folder  . "/Gmail/[Gmail]/All Mail")
+		  (mu4e-trash-folder  . "/Gmail/[Gmail]/Trash")
+		  (smtpmail-smtp-server  . "smtp.gmail.com")
+		  (smtpmail-smtp-service . 465)
+		  (smtpmail-stream-type  . ssl)
+		  (mu4e-maildir-shortcuts .
+		    (("/Gmail/Inbox"             . ?i)
+		     ("/Gmail/[Gmail]/Sent Mail" . ?s)
+		     ("/Gmail/[Gmail]/Trash"     . ?t)
+		     ("/Gmail/[Gmail]/Drafts"    . ?d)))))
+
+	 ;; Personal account
+	 (make-mu4e-context
+	  :name "Fatcow"
+	  :match-func
+	    (lambda (msg)
+	      (when msg
+		(string-prefix-p "/Fatcow" (mu4e-message-field msg :maildir))))
+	  :vars '((user-mail-address . "john@wassilak.com")
+		  (user-full-name    . "John Wassilak")
+		  (mu4e-drafts-folder  . "/Fatcow/Drafts")
+		  (mu4e-sent-folder  . "/Fatcow/Sent")
+		  (mu4e-trash-folder  . "/Fatcow/Trash")
+		  (smtpmail-smtp-server  . "smtp.fatcow.com")
+		  (smtpmail-smtp-service . 465)
+		  (smtpmail-stream-type  . ssl)
+		  (mu4e-maildir-shortcuts .
+		    (("/Fatcow/Inbox"            . ?i)
+		     ("/Fatcow/Sent"             . ?s)
+		     ("/Fatcow/Trash"            . ?t)
+		     ("/Fatcow/Drafts"           . ?d)))))))
+
+
+    ;; Configure the function to use for sending mail
+    (setq message-send-mail-function 'smtpmail-send-it)
+
+    (server-start) ;; ! this is big, but putting here so it's deferred     
+
+    ;; run in the background when syncing
+    (mu4e t))
+
+#+end_src
+
+** Function to allow MbSync to pull creds
+
+#+begin_src emacs-lisp 
+
+  (defun efs/lookup-password (&rest keys)
+    (let ((result (apply #'auth-source-search keys)))
+	(if result
+	    (funcall (plist-get (car result) :secret))
+	    nil)))
+#+End_src
+
