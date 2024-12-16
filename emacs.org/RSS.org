@@ -14,13 +14,19 @@
       ("https://vid.puffyan.us/feed/channel/UC7Z1FTCdSln_qFKK95AWplw" video) ;; ogldev
       ("https://vid.puffyan.us/feed/channel/UCkRmQ_G_NbdbCQMpALg6UPg" video) ;; parens
       ("https://inv.tux.pizza/feed/channel/UCUyeluBRhGPCW4rPe_UvBZQ" video) ;; primetime
+      ("https://vid.puffyan.us/feed/channel/UCU7v5kTKdLacf5c4KeMempQ" video) ;; baker
       ("https://vid.puffyan.us/feed/channel/UCZIB_p5AgVVdxgkYWHeUy-Q" video) ;; aimee
       ("https://vid.puffyan.us/feed/channel/UC4USoIAL9qcsx5nCZV_QRnA" video) ;; idubbz
       ("https://vid.puffyan.us/feed/channel/UCjETc3psT6i7B5z6S1Y3ojQ" video) ;; ham radio tube
+      ("https://vid.puffyan.us/feed/channel/UCEtB-nx5ngoNJWEzYa-yXBg" video) ;; film joy
       ("https://vid.puffyan.us/feed/channel/UCiBhDA8lcKqzH-jqmElNUfg" video) ;; tigran
       ("https://vid.puffyan.us/feed/channel/UC6jUsIEZ2F875OB2Be84cpA" video) ;; ampersand
       ("https://vid.puffyan.us/feed/channel/UC28n0tlcNSa1iPe5mettocg" video) ;; voidzilla
       ("https://vid.puffyan.us/feed/channel/UCsI_41SZafKtB5qE46WjlQQ" video) ;; becky stern
+      ("https://vid.puffyan.us/feed/channel/UC75oa16yMCJm-JM8e7W2c4Q" video) ;; broderick
+      ("https://vid.puffyan.us/feed/channel/UCpMEC_NiX1r503JISXQ-VKw" video) ;; mrporter
+      ("https://vid.puffyan.us/feed/channel/UCRXiA3h1no_PFkb1JCP0yMA" video) ;; vogue
+      ("https://vid.puffyan.us/feed/channel/UCsEukrAd64fqA7FjwkmZ_Dw" video) ;; gq
       ("https://vid.puffyan.us/feed/channel/UCJquYOG5EL82sKTfH9aMA9Q" video) ;; beato
       ("https://vid.puffyan.us/feed/channel/UCRTeNftWBh6ePpiqzyMNmFw" video) ;; tonebase
       ("https://vid.puffyan.us/feed/channel/UCSE6yilNScIz1SLTNQvrXMw" video) ;; v piano
@@ -33,15 +39,15 @@
       ("https://vid.puffyan.us/feed/channel/UCNY02mhMxIA401SzGixUgFw" video) ;;swingles
       ("https://vid.puffyan.us/feed/channel/UCaTznQhurW5AaiYPbhEA-KA" video) ;; molly rocket
       ("https://vid.puffyan.us/feed/channel/UCuxpxCCevIlF-k-K5YU8XPA" video) ;; scott kilmer
-      ("https://yt.artemislena.eu/feed/channel/UCTl3QQTvqHFjurroKxexy2Q" video) ;;olympics
-      ("https://invidious.private.coffee/feed/channel/UCFQMnBA3CS502aghlcr0_aw" video) ;;coffeezilla
+      ("https://vid.puffyan.us/feed/channel/UCTl3QQTvqHFjurroKxexy2Q" video) ;;olympics
+      ("https://vid.puffyan.us/feed/channel/UCFQMnBA3CS502aghlcr0_aw" video) ;;coffeezilla
       ("https://vid.puffyan.us/feed/channel/UCmv1CLT6ZcFdTJMHxaR9XeA" video) ;; pentatonix
       ("https://showrss.info/user/281395.rss?magnets=true&namespaces=true&name=null&quality=null&re=null" text) ;; tv show feed
       ("https://invidious.darkness.services/feed/channel/UCVeW9qkBjo3zosnqUbG7CFw" video) ;; john hammond
       ("https://www.2600.com/rss.xml" podcast)
-      ("https://invidious.private.coffee/feed/channel/UC0cd_-e49hZpWLH3UIwoWRA" video) ;; prof dave
+      ("https://vid.puffyan.us/feed/channel/UC0cd_-e49hZpWLH3UIwoWRA" video) ;; prof dave
       ("https://vid.puffyan.us/feed/channel/UCO3tlaeZ6Z0ZN5frMZI3-uQ" video) ;;obrien
-      ("https://yt.drgnz.club/feed/channel/UCM_qgRbk2J8tqlSX0HV58RA" video) ;;sco
+      ("https://vid.puffyan.us/feed/channel/UCM_qgRbk2J8tqlSX0HV58RA" video) ;;sco
       ("https://vid.puffyan.us/feed/channel/UCVjlpEjEY9GpksqbEesJnNA" video) ;; uncle roger
       ("https://invidious.darkness.services/feed/channel/UCY4oKJ57Dx3GITBbHkODlGw" video) ;; natty
       ("https://vid.puffyan.us/feed/channel/UC9x0AN7BWHpCDHSm9NiJFJQ" video) ;; net chuck
@@ -118,7 +124,7 @@
       ("https://vid.puffyan.us/feed/channel/UCOVfq3NNYjlYCz1iou69FwQ" video);; kramling
       ("https://feeds.simplecast.com/Y8lFbOT4" podcast);; freakonomics pod
       ("https://googlecloudpodcast.libsyn.com/rss" podcast);; gcp pod
-      ("https://www.dataengineeringpodcast.com/rss" podcast);; de podcast
+      ("https://serve.podhome.fm/rss/1c0357c0-6aba-5766-a2d5-2090d8dab6bc" podcast);; de podcast
       ("https://feeds.transistor.fm/the-data-engineering-show" podcast) ;; de show
       ("https://feeds.redcircle.com/64a89f88-a245-4098-8d8d-496325ec4f74" podcast) ;;jocko
       ("https://feeds.megaphone.fm/hubermanlab" podcast);; huberman
@@ -255,7 +261,7 @@
 #+end_src
 
 #+RESULTS:
-: my/eww-dl-share
+: my/elfeed-dl-share
 
 ** Personal Podcast Feed for phone
 
