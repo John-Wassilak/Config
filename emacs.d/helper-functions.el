@@ -55,3 +55,11 @@
           (timer (run-at-time time-string 24hours function)))
      (when (> (timer-until timer (current-time)) 0)
        (timer-inc-time timer 24hours))))
+
+(defun laptop/dired-roam ()
+  (interactive)
+  (find-file "/plink:laptop:/mnt/crypt/john/org/roam/"))
+
+(defun laptop/dired-crypt ()
+  (interactive)
+  (find-file "/plink:laptop:/mnt/crypt/john/"))

@@ -92,3 +92,17 @@
          (timer-inc-time timer 24hours))))
 
 #+end_src
+
+** Tramp stuff
+To edit stuff over ssh
+#+begin_src emacs-lisp
+
+  (defun laptop/dired-roam ()
+    (interactive)
+    (find-file "/plink:laptop:/mnt/crypt/john/org/roam/"))
+
+  (defun laptop/dired-crypt ()
+    (interactive)
+    (find-file "/plink:laptop:/mnt/crypt/john/"))
+
+#+end_src
