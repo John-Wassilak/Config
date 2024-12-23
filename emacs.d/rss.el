@@ -11,6 +11,7 @@
     ("https://vid.puffyan.us/feed/channel/UC4USoIAL9qcsx5nCZV_QRnA" video) ;; idubbz
     ("https://vid.puffyan.us/feed/channel/UCjETc3psT6i7B5z6S1Y3ojQ" video) ;; ham radio tube
     ("https://vid.puffyan.us/feed/channel/UCEtB-nx5ngoNJWEzYa-yXBg" video) ;; film joy
+    ("https://feeds.simplecast.com/kwWc0lhf" podcast) ;; hidden brain
     ("https://vid.puffyan.us/feed/channel/UCiBhDA8lcKqzH-jqmElNUfg" video) ;; tigran
     ("https://vid.puffyan.us/feed/channel/UC6jUsIEZ2F875OB2Be84cpA" video) ;; ampersand
     ("https://vid.puffyan.us/feed/channel/UC28n0tlcNSa1iPe5mettocg" video) ;; voidzilla

@@ -25,3 +25,16 @@
   (my/set-24hr-timer "04:00am" 'my/eoc-backup)
   (my/set-24hr-timer "05:00am" 'my/cam-consolidation))
 (put 'list-timers 'disabled nil)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(haskell-mode yasnippet which-key vterm visual-fill-column scala-mode rust-mode rainbow-delimiters pyvenv python-mode org-roam org-bullets no-littering nerd-icons-dired multiple-cursors lsp-ui lsp-treemacs lsp-ivy ivy-rich ivy-prescient helpful forge eshell-git-prompt elfeed ein doom-themes doom-modeline dired-open dired-hide-dotfiles counsel-projectile company-box auto-package-update all-the-icons)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
