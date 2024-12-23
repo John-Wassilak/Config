@@ -70,6 +70,9 @@
 
 (add-hook 'ipynb-mode 'my-ein-font-config)
 
+(use-package haskell-mode)
+(use-package rust-mode)
+
 (use-package projectile
   :diminish projectile-mode
   :config (projectile-mode)

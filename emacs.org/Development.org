@@ -62,7 +62,6 @@
 | company-box-mode |
 
 ** Python
-
 *** Make sure =pyls= is installed
 
 #+begin_src sh :tangle no
@@ -122,6 +121,13 @@ pip install --user "python-lsp-server[all]"
 #+RESULTS:
 : 4
 
+** Other languages
+#+begin_src emacs-lisp
+
+  (use-package haskell-mode)
+  (use-package rust-mode)
+
+#+end_src
 * Projectile
 
 #+begin_src emacs-lisp
