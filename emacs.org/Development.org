@@ -126,6 +126,7 @@ pip install --user "python-lsp-server[all]"
 
   (use-package haskell-mode)
   (use-package rust-mode)
+  (use-package zig-mode)
 
 #+end_src
 * Projectile

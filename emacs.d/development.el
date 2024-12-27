@@ -72,6 +72,7 @@
 
 (use-package haskell-mode)
 (use-package rust-mode)
+(use-package zig-mode)
 
 (use-package projectile
   :diminish projectile-mode
