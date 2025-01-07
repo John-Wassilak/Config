@@ -129,6 +129,9 @@ pip install --user "python-lsp-server[all]"
   (use-package zig-mode)
 
 #+end_src
+
+#+RESULTS:
+
 * Projectile
 
 #+begin_src emacs-lisp
