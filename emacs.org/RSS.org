@@ -17,14 +17,29 @@
       (,(concat my/rss-yt-prefix "UC7Z1FTCdSln_qFKK95AWplw") video) ;; ogldev
       (,(concat my/rss-yt-prefix "UCkRmQ_G_NbdbCQMpALg6UPg") video) ;; parens
       (,(concat my/rss-yt-prefix "UCUyeluBRhGPCW4rPe_UvBZQ") video) ;; primetime
-      (,(concat my/rss-yt-prefix "UCU7v5kTKdLacf5c4KeMempQ") video) ;; baker
+      (,(concat my/rss-yt-prefix "UC__auRZOSvg0mxYBPs3GWMQ") music) ;; talk
+      (,(concat my/rss-yt-prefix "UCrDwWp7EBBv4NwvScIpBDOA") video) ;; anthropic
+      (,(concat my/rss-yt-prefix "UCkkS9vuXcbxijUfoXft8x7w") music) ;; mike dawes
+      (,(concat my/rss-yt-prefix "UCtyzzW6rIQiGP7gfGTXkhDw") music) ;; jellyroll
+      (,(concat my/rss-yt-prefix "UCU7v5kTKdLacf5c4KeMempQ") music) ;; baker
+      (,(concat my/rss-yt-prefix "UC1h3FZ8vCxViozCLT-C3loA") music) ;; moreno
+      ("https://framatube.org/feeds/videos.xml?videoChannelId=333" video) ;; fsf?
+      (,(concat my/rss-yt-prefix "UCFCDLnoNn3lDOFYglbsuSqA") music) ;; nickel creek
+      (,(concat my/rss-yt-prefix "UCRCkL89mcxMETTcqou5o5ow") music) ;; thile
+      (,(concat my/rss-yt-prefix "UCtMZP29LNEkI96ezw8I0eGw") music) ;; j lage
+      (,(concat my/rss-yt-prefix "UCL-0gAth4u6Wp-9_98XU3nA") music) ;; t emmanuel
+      (,(concat my/rss-yt-prefix "UCxKSQr1q0IL-Ps0ekPhDE4A") music) ;; punch brothers
+      (,(concat my/rss-yt-prefix "UCz7eHJIOAAgIUxlE8iODk7w") music) ;; dawes
+      (,(concat my/rss-yt-prefix "UCXgxNzAgZ1GExhTW4X1mUrg") music)  ;; rebillet
       (,(concat my/rss-yt-prefix "UCZIB_p5AgVVdxgkYWHeUy-Q") video) ;; aimee
+      (,(concat my/rss-yt-prefix "UCJ0FbAfZ5x1_wv0QaveNYNA") music) ;; voyager aus
       (,(concat my/rss-yt-prefix "UC4USoIAL9qcsx5nCZV_QRnA") video) ;; idubbz
       (,(concat my/rss-yt-prefix "UCjETc3psT6i7B5z6S1Y3ojQ") video) ;; ham radio tube
       (,(concat my/rss-yt-prefix "UCEtB-nx5ngoNJWEzYa-yXBg") video) ;; film joy
       (,(concat my/rss-yt-prefix "UC6t5e6r-JEVoz_yn6SdvLRw") video) ;; jim hart
+      (,(concat my/rss-yt-prefix "UC6biysICWOJ-C3P4Tyeggzg") video) ;; low level prog
       ("https://feeds.simplecast.com/kwWc0lhf" podcast) ;; hidden brain
-      (,(concat my/rss-yt-prefix "UCiBhDA8lcKqzH-jqmElNUfg") video) ;; tigran
+      (,(concat my/rss-yt-prefix "UCiBhDA8lcKqzH-jqmElNUfg") music) ;; tigran
       (,(concat my/rss-yt-prefix "UC6jUsIEZ2F875OB2Be84cpA") video) ;; ampersand
       (,(concat my/rss-yt-prefix "UC28n0tlcNSa1iPe5mettocg") video) ;; voidzilla
       (,(concat my/rss-yt-prefix "UCsI_41SZafKtB5qE46WjlQQ") video) ;; becky stern
@@ -46,7 +61,7 @@
       (,(concat my/rss-yt-prefix "UCuxpxCCevIlF-k-K5YU8XPA") video) ;; scott kilmer
       (,(concat my/rss-yt-prefix "UCTl3QQTvqHFjurroKxexy2Q") video) ;;olympics
       (,(concat my/rss-yt-prefix "UCFQMnBA3CS502aghlcr0_aw") video) ;;coffeezilla
-      (,(concat my/rss-yt-prefix "UCmv1CLT6ZcFdTJMHxaR9XeA") video) ;; pentatonix
+      (,(concat my/rss-yt-prefix "UCmv1CLT6ZcFdTJMHxaR9XeA") music) ;; pentatonix
       ("https://showrss.info/user/281395.rss?magnets=true&namespaces=true&name=null&quality=null&re=null" text) ;; tv show feed
       (,(concat my/rss-yt-prefix "UCVeW9qkBjo3zosnqUbG7CFw") video) ;; john hammond
       ("https://www.2600.com/rss.xml" podcast)
@@ -58,7 +73,7 @@
       (,(concat my/rss-yt-prefix "UC9x0AN7BWHpCDHSm9NiJFJQ") video) ;; net chuck
       (,(concat my/rss-yt-prefix "UCUsCq3Hq5haa6tTph41hpJQ") video) ;; ecklund
       (,(concat my/rss-yt-prefix "UCtI0Hodo5o5dUb67FeUjDeA") video) ;; spacex
-      (,(concat my/rss-yt-prefix "UCteFOtSvvbnceka5zKsHBYw") video) ;; maggie rogers
+      (,(concat my/rss-yt-prefix "UCteFOtSvvbnceka5zKsHBYw") music) ;; maggie rogers
       (,(concat my/rss-yt-prefix "UCRLOLGZl3-QTaJfLmAKgoAw") video) ;; thrall
       (,(concat my/rss-yt-prefix "UCpMEC_NiX1r503JISXQ-VKw") video) ;; porter
       (,(concat my/rss-yt-prefix "UCi7nMpXuCXT_SUOOE6Yy2ag") video) ;; tom ford
@@ -76,12 +91,12 @@
       (,(concat my/rss-yt-prefix "UCtM5z2gkrGRuWd0JQMx76qA") video) ;; big clive
       (,(concat my/rss-yt-prefix "UC6EJTy6p58ZW16PEljSn4Qw") video) ;; t nagy
       (,(concat my/rss-yt-prefix "UC-gO6d2N_MiG5wVuL14okbg") video) ;; tkennedy
-      (,(concat my/rss-yt-prefix "UCknfFAeVpD6e5-9wriAGVwg") video) ;; pickles
+      (,(concat my/rss-yt-prefix "UCknfFAeVpD6e5-9wriAGVwg") music) ;; pickles
       (,(concat my/rss-yt-prefix "UCzS3-65Y91JhOxFiM7j6grg") video) ;; fod
       (,(concat my/rss-yt-prefix "UCPzyK7-vPvtWU5H4vjK1xjw") video) ;; amythyst
-      (,(concat my/rss-yt-prefix "UCdKj0VzVR0Af0wzd7-68Avw") video) ;; tim henson
+      (,(concat my/rss-yt-prefix "UCdKj0VzVR0Af0wzd7-68Avw") music) ;; tim henson
       (,(concat my/rss-yt-prefix "UCz__rO-DqQjGACVNvJJ8bKg") video) ;; mmf
-      (,(concat my/rss-yt-prefix "UC4PziMH5MvvsmqM0VCZTy-g") video) ;;gnorton
+      (,(concat my/rss-yt-prefix "UC4PziMH5MvvsmqM0VCZTy-g") video) ;; gnorton
       (,(concat my/rss-yt-prefix "UCytvslh5KzMrcaEQxDVrmAA") video) ;; joetroop
       (,(concat my/rss-yt-prefix "UCAiiOTio8Yu69c3XnR7nQBQ") video) ;; system crafters
       (,(concat my/rss-yt-prefix "UC5FaqTBy0c1jlRUHKu4SuXQ") video) ;; sstrength
@@ -112,7 +127,7 @@
       (,(concat my/rss-yt-prefix "UCiNr6FzQ-Kb4wNsLGBWXH5w") video) ;; hbiogascs
       (,(concat my/rss-yt-prefix "UC_2lbLBOxZpEDHLEzd1z9vQ") video) ;; homebiogas
       (,(concat my/rss-yt-prefix "UCtHaxi4GTYDpJgMSGy7AeSw") video) ;; reeves
-      (,(concat my/rss-yt-prefix "UCQB4-ZjPDfiG1-k0KZlbPug") video) ;; thundercat
+      (,(concat my/rss-yt-prefix "UCQB4-ZjPDfiG1-k0KZlbPug") music) ;; thundercat
       (,(concat my/rss-yt-prefix "UCNypeTQAfb2pBA-BLPYK0kg") video) ;; linvega
       (,(concat my/rss-yt-prefix "UCPgJddP_Y3BHo_8bG0G1TCA") video) ;; Yanis
       (,(concat my/rss-yt-prefix "UCzdg4pZb-viC3EdA1zxRl4A") video) ;; 100r
@@ -120,9 +135,9 @@
       (,(concat my/rss-yt-prefix "UCuDv5p8E-evaRSh542hDV5g") video);; robert reich
       (,(concat my/rss-yt-prefix "UCxfgTxo6HUmnZkxHWFV5T-A") video);; stars
       (,(concat my/rss-yt-prefix "UC_GRMAkr6nIEx8smcOH1CNw") video);; 2600
-      (,(concat my/rss-yt-prefix "UCvEpsAwbN4riDPgYcz9ED1Q") video);; dallas records
-      (,(concat my/rss-yt-prefix "UC4eEWD0Emox6YOdaWVwmxAw") video);; let3
-      (,(concat my/rss-yt-prefix "UCqs_rqwO2dUouMqh3ZLeBHw") video);; dora
+      (,(concat my/rss-yt-prefix "UCvEpsAwbN4riDPgYcz9ED1Q") music);; dallas records
+      (,(concat my/rss-yt-prefix "UC4eEWD0Emox6YOdaWVwmxAw") music);; let3
+      (,(concat my/rss-yt-prefix "UCqs_rqwO2dUouMqh3ZLeBHw") music);; dora
       (,(concat my/rss-yt-prefix "UCwzAmROPHasu6Gof1I4qvYQ") video);; demange
       (,(concat my/rss-yt-prefix "UC3XTzVzaHQEd30rQbuvCtTQ") video);; last week tonight
       ("https://freepressokc.com/feed" text)
@@ -143,31 +158,31 @@
       ("https://rss.nytimes.com/services/xml/rss/nyt/World.xml" text)
       ("https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml" text)
       ("https://worldstarhiphop.com/videos/rss.php" video)
-      (,(concat my/rss-yt-prefix "UCRpjHHu8ivVWs73uxHlWwFA") video);; eurovision
-      (,(concat my/rss-yt-prefix "UCF18N219OPiOcElz_hSYoIQ") video);; dadi
-      (,(concat my/rss-yt-prefix "UCLG7twDweqlHpyv0EDOjrgw") video);; sigrid
-      (,(concat my/rss-yt-prefix "UCNjHgaLpdy1IMNK57pYiKiQ") video);; aurora
-      (,(concat my/rss-yt-prefix "UCPJFvbf8tNE9-_aYgeXfdKA") video);; daigle
-      (,(concat my/rss-yt-prefix "UCGmtDrMebeJCq2jgvboJ7Jg") video);; needtobreathe
-      (,(concat my/rss-yt-prefix "UCYp3rk70ACGXQ4gFAiMr1SQ") video);; rammstein
-      (,(concat my/rss-yt-prefix "UCkjot4p29KLU0pwc0srHeGg") video);; t lindemann
-      (,(concat my/rss-yt-prefix "UCbQporZxQlCjFDcxrWUX7BA") video);; lindemann
-      (,(concat my/rss-yt-prefix "UCHcb3FQivl6xCRcHC2zjdkQ") video);; oliver tree
-      (,(concat my/rss-yt-prefix "UCtpiIBHg_cbAIm9N-7SabOw") video);; metronomy
-      (,(concat my/rss-yt-prefix "UCJMrvlVhrZYgP0MVoAUG1rw") video);; gund
-      (,(concat my/rss-yt-prefix "UCG3hX4KkT3-vtLWLVg6hoeQ") video);; gund vevo
-      (,(concat my/rss-yt-prefix "UCNa3uC5LqiRHOnv5b4MZ36g") video);; dead oceans
-      (,(concat my/rss-yt-prefix "UCO76MEWSSwLR9cKvFXwh1vA") video);; bridgersVevo
-      (,(concat my/rss-yt-prefix "UCh4PO1W9tVmHujIPZnfK8TQ") video);; bridgers
+      (,(concat my/rss-yt-prefix "UCRpjHHu8ivVWs73uxHlWwFA") music);; eurovision
+      (,(concat my/rss-yt-prefix "UCF18N219OPiOcElz_hSYoIQ") music);; dadi
+      (,(concat my/rss-yt-prefix "UCLG7twDweqlHpyv0EDOjrgw") music);; sigrid
+      (,(concat my/rss-yt-prefix "UCNjHgaLpdy1IMNK57pYiKiQ") music);; aurora
+      (,(concat my/rss-yt-prefix "UCPJFvbf8tNE9-_aYgeXfdKA") music);; daigle
+      (,(concat my/rss-yt-prefix "UCGmtDrMebeJCq2jgvboJ7Jg") music);; needtobreathe
+      (,(concat my/rss-yt-prefix "UCYp3rk70ACGXQ4gFAiMr1SQ") music);; rammstein
+      (,(concat my/rss-yt-prefix "UCkjot4p29KLU0pwc0srHeGg") music);; t lindemann
+      (,(concat my/rss-yt-prefix "UCbQporZxQlCjFDcxrWUX7BA") music);; lindemann
+      (,(concat my/rss-yt-prefix "UCHcb3FQivl6xCRcHC2zjdkQ") music);; oliver tree
+      (,(concat my/rss-yt-prefix "UCtpiIBHg_cbAIm9N-7SabOw") music);; metronomy
+      (,(concat my/rss-yt-prefix "UCJMrvlVhrZYgP0MVoAUG1rw") music);; gund
+      (,(concat my/rss-yt-prefix "UCG3hX4KkT3-vtLWLVg6hoeQ") music);; gund vevo
+      (,(concat my/rss-yt-prefix "UCNa3uC5LqiRHOnv5b4MZ36g") music);; dead oceans
+      (,(concat my/rss-yt-prefix "UCO76MEWSSwLR9cKvFXwh1vA") music);; bridgersVevo
+      (,(concat my/rss-yt-prefix "UCh4PO1W9tVmHujIPZnfK8TQ") music);; bridgers
       (,(concat my/rss-yt-prefix "UCwWhs_6x42TyRM4Wstoq8HA") video);; daily show
       (,(concat my/rss-yt-prefix "UCsvn_Po0SmunchJYOWpOxMg") video);; dunkey
-      (,(concat my/rss-yt-prefix "UCtmY49Zn4l0RMJnTWfV7Wsg") video);; jcollier
-      (,(concat my/rss-yt-prefix "UCigygyPkHm07o-wQvkET7Og") video);; gcollier
+      (,(concat my/rss-yt-prefix "UCtmY49Zn4l0RMJnTWfV7Wsg") music);; jcollier
+      (,(concat my/rss-yt-prefix "UCigygyPkHm07o-wQvkET7Og") music);; gcollier
       (,(concat my/rss-yt-prefix "UC4ihNhN8iN9QPg2XTxiiPJw") video);; score
       (,(concat my/rss-yt-prefix "UC4PIiYewI1YGyiZvgNlJNrA") video);; cornell
       (,(concat my/rss-yt-prefix "UCsN32BtMd0IoByjJRNF12cw") video);; 60 mins
       (,(concat my/rss-yt-prefix "UCq6VFHwMzcMXbuKyG7SQYIg") video);; charlie
-      (,(concat my/rss-yt-prefix "UC-lHJZR3Gqxm24_Vd_AJ5Yw") video);;pew
+      (,(concat my/rss-yt-prefix "UC-lHJZR3Gqxm24_Vd_AJ5Yw") video);; pew
       (,(concat my/rss-yt-prefix "UCJ0-OtVpF0wOKEqT2Z1HEtA") video);; medhi
       (,(concat my/rss-yt-prefix "UCs6KfncB4OV6Vug4o_bzijg") video);; techlore
       (,(concat my/rss-yt-prefix "UCsS3BCdeS_6wbclEfQ2jgqw") video);; dixon
