@@ -26,7 +26,8 @@
   (defun rss/load-feed-list ()
     (let* ((file-text (cdr (split-string (f-read-text rss/feed-file) "\n")))
            (file-parsed (seq-map (lambda (x) (split-string x "|")) file-text))
-           (transformed (seq-map 'rss/parse-row file-parsed)))
+           (file-fltr   (seq-filter (lambda (x) (length> x 0)) file-parsed))
+           (transformed (seq-map 'rss/parse-row file-fltr)))
       transformed))
 
   (setq my/rss-feed-list (rss/load-feed-list))

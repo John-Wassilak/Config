@@ -5,7 +5,7 @@
     // Choose the order of the modules
     "modules-left": ["hyprland/workspaces", "hyprland/submap"],
     "modules-center": ["clock", "custom/weather"],
-    "modules-right": ["pulseaudio", "custom/mem", "cpu", "temperature", "backlight", "battery", "tray"],
+    "modules-right": ["pulseaudio", "custom/mem", "cpu", "temperature", "backlight", "battery", "custom/timer", "tray"],
 
 
     //***************************
@@ -99,8 +99,26 @@
 	"on-update": "$HOME/.config/waybar/scripts/check_battery.sh",
     },
 
+    "custom/timer": {
+        "exec": "/home/john/bin/waybar_timer hook",
+	"exec-on-event": false,
+	"return-type": "json",
+	"format": "{icon} {0}",
+	"format-icons": {
+		"standby": "⏱",
+		"running": "⏱",
+		"paused": "⏸"
+	},
+	"on-click": "/home/john/bin/waybar_timer new 25 'mpv ~/.timer_sounds/zeit.mp3 & notify-send \"Session finished\"'",
+	"on-click-middle": "/home/john/bin/waybar_timer cancel",
+	"on-click-right": "/home/john/bin/waybar_timer togglepause",
+	"on-scroll-up": "/home/john/bin/waybar_timer increase 60 || /home/john/bin/waybar_timer new 1 'mpv ~/.timer_sounds/zeit.mp3 & notify-send -u critical \"Timer expired\"'",
+	"on-scroll-down": "/home/john/bin/waybar_timer decrease 60"
+    },
+
     "tray": {
         "icon-size": 16,
-        "spacing": 0
-    },
+        "spacing": 10,
+	"min-length": 6
+    }
 }
