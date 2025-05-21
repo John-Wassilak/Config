@@ -78,7 +78,28 @@ window#waybar.hidden {
     background: #383c4a;
 }
 
+#custom-sp_ticker {
+    margin-left: 8px;
+    padding-right: 8px;
+    padding-left: 8px;
+    border-radius: 10px;
+    transition: none;
+    color: #ffffff;
+    background: #383c4a;
+}
+
+#custom-port_ticker {
+    margin-left: 8px;
+    padding-right: 8px;
+    padding-left: 8px;
+    border-radius: 10px;
+    transition: none;
+    color: #ffffff;
+    background: #383c4a;
+}
+
 #clock {
+    margin-left: 8px;
     padding-right: 8px;
     padding-left: 8px;
     border-radius: 10px;

@@ -7,7 +7,7 @@
 ;; dl url to typical vid folder
 (defun dl-local (url)
   (interactive "sURL: ")
-  (async-shell-command (format "%s -P home:/mnt/crypt/john/vid/ %s" yt-dlp-base-command url)
+  (async-shell-command (format "%s -P home:/home/john/vid/ %s" yt-dlp-base-command url)
                        (messages-buffer)))
 
 ;; dl url to typical share folder
@@ -43,7 +43,7 @@
   (async-shell-command "bluetoothctl connect 74:45:CE:46:55:24"
                        (messages-buffer)))
 
-(setq my/reolink-token "00c39fc35971a87")
+(setq my/reolink-token "f32b615f06fd42d")
 
 (defun my/play-cam (cam-number)
   (interactive "nCamera Number: ")

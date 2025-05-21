@@ -4,7 +4,7 @@
     "margin": "9 13 -10 18",
     // Choose the order of the modules
     "modules-left": ["hyprland/workspaces", "hyprland/submap"],
-    "modules-center": ["clock", "custom/weather"],
+    "modules-center": ["custom/sp_ticker", "custom/port_ticker", "clock", "custom/weather"],
     "modules-right": ["pulseaudio", "custom/mem", "cpu", "temperature", "backlight", "battery", "custom/timer", "tray"],
 
 
@@ -20,6 +20,22 @@
         "format": "pon {}"
     },
 
+    "custom/sp_ticker": {
+        "format": "{}",
+        "tooltip": true,
+        "interval": 300,
+        "exec": "$HOME/.config/waybar/scripts/sp_ticker.py",
+        "return-type": "json"
+    },
+
+    "custom/port_ticker": {
+        "format": "{}",
+        "tooltip": true,
+        "interval": 300,
+        "exec": "$HOME/.config/waybar/scripts/portfolio_ticker.py",
+        "return-type": "json"
+    },
+
     "clock": {
         // "timezone": "America/New_York",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
@@ -29,7 +45,7 @@
     "custom/weather": {
         "format": "{}",
         "tooltip": true,
-        "interval": 1800,
+        "interval": 300,
         "exec": "$HOME/.config/waybar/scripts/wttr.py",
         "return-type": "json"
     },

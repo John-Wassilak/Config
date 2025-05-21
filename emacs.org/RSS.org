@@ -26,7 +26,7 @@
   (defun rss/load-feed-list ()
     (let* ((file-text (cdr (split-string (f-read-text rss/feed-file) "\n")))
            (file-parsed (seq-map (lambda (x) (split-string x "|")) file-text))
-           (file-fltr   (seq-filter (lambda (x) (length> x 0)) file-parsed))
+           (file-fltr   (seq-filter (lambda (x) (length> x 1)) file-parsed))
            (transformed (seq-map 'rss/parse-row file-fltr)))
       transformed))
 
@@ -58,48 +58,62 @@
 #+begin_src emacs-lisp
 
   (require 'elfeed)
-  ;;(async-shell-command (format "yt-dlp %s -o - | mpv -" url)))
+    ;;(async-shell-command (format "yt-dlp %s -o - | mpv -" url)))
 
   (defun elfeed-v-mpv (url title)
-    (call-process-shell-command
-     (format "/mnt/crypt/john/yt-dlp/yt-dlp.sh %s -o - | mpv --title=\"%s\" - &" url title) nil 0))
+    (let ((command (cond ((string-match-p (regexp-quote "youtube") url) (format "mpv %s" url))
+                          (t (format "yt-dlp %s -o - | mpv --title=\"%s\" -" url title)))))
+    (call-process-shell-command command nil 0)))
 
   (defun my/elfeed-view-mpv (&optional use-generic-p)
-    (interactive "P")
-    (let ((link (elfeed-entry-link elfeed-show-entry))
-          (title (elfeed-entry-title elfeed-show-entry)))
-      (when link
-        (elfeed-v-mpv link title))))
+      (interactive "P")
+      (let ((link (elfeed-entry-link elfeed-show-entry))
+            (title (elfeed-entry-title elfeed-show-entry)))
+        (when link
+          (elfeed-v-mpv link title))))
 
-  (defun my/elfeed-dl-share (&optional use-generic-p)
-    (interactive "P")
-    (let ((link (elfeed-entry-link elfeed-show-entry)))
-      (when link
-        (dl-share link))))
+    (defun my/elfeed-dl-share (&optional use-generic-p)
+      (interactive "P")
+      (let ((link (elfeed-entry-link elfeed-show-entry)))
+        (when link
+          (dl-share link))))
 
-  (define-key elfeed-show-mode-map (kbd "v") 'my/elfeed-view-mpv)
-  (define-key elfeed-show-mode-map (kbd "s") 'my/elfeed-dl-share)
+    (defun my/elfeed-dl-local (&optional use-generic-p)
+      (interactive "P")
+      (let ((link (elfeed-entry-link elfeed-show-entry)))
+        (when link
+          (dl-local link))))
 
-  ;; eww
+    (defun my/elfeed-save-link (&optional use-generic-p)
+      (interactive "P")
+      (let ((link  (elfeed-entry-link elfeed-show-entry)))
+        (f-append (format "%s\n" link) 'utf-8 "/home/john/vid/links")))
 
-  ;; stream url under point
-  ;; (defun my/stream-point-url (url)
-  ;; (interactive (list (shr-url-at-point current-prefix-arg)))
-  ;; (stream url))
+    (define-key elfeed-show-mode-map (kbd "v") 'my/elfeed-view-mpv)
+    (define-key elfeed-show-mode-map (kbd "s") 'my/elfeed-dl-share)
+    (define-key elfeed-show-mode-map (kbd "l") 'my/elfeed-dl-local)
+    (define-key elfeed-show-mode-map (kbd "L") 'my/elfeed-save-link)
 
-  ;; ;; dl
-  ;;url under point
-  ;; (defun my/eww-dl-share (url)
-  ;; (interactive (list (shr-url-at-point current-prefix-arg)))
-  ;; (dl-share url))
+    ;; eww
 
-  ;; ;;(define-key eww-mode-map (kbd "m") 'my/stream-point-url)
-  ;; (define-key eww-mode-map (kbd "s") 'my/eww-dl-share)
+    ;; stream url under point
+    ;; (defun my/stream-point-url (url)
+    ;; (interactive (list (shr-url-at-point current-prefix-arg)))
+    ;; (stream url))
+
+    ;; ;; dl
+    ;;url under point
+    ;; (defun my/eww-dl-share (url)
+    ;; (interactive (list (shr-url-at-point current-prefix-arg)))
+    ;; (dl-share url))
+
+    ;; ;;(define-key eww-mode-map (kbd "m") 'my/stream-point-url)
+    ;; (define-key eww-mode-map (kbd "s") 'my/eww-dl-share)
 
 #+end_src
 
 #+RESULTS:
-: my/elfeed-dl-share
+: my/elfeed-dl-local
 
 ** Personal Podcast Feed for phone
 
