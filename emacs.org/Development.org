@@ -102,6 +102,8 @@ pip install --user "python-lsp-server[all]"
     (add-hook 'c-mode-hook 'my-c-mode-hook)
     (add-hook 'c-mode-hook 'lsp))
 
+  (use-package clang-format)
+
 #+end_src
 
 #+RESULTS:

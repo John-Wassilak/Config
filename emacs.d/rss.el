@@ -30,6 +30,7 @@
   (elfeed-db-directory "~/.elfeed")
   (elfeed-feeds my/rss-feed-list)
   (elfeed-curl-max-connections 1) ;; avoid 500s by going one-at-a-time
+  (elfeed-curl-extra-arguments `("--socks5-hostname" "127.0.0.1:9050"))
   (url-queue-timeout 30)
   :config
   (setq elfeed-log-level 'warn)
@@ -40,7 +41,7 @@
 
 (defun elfeed-v-mpv (url title)
   (let ((command (cond ((string-match-p (regexp-quote "youtube") url) (format "mpv %s" url))
-                        (t (format "yt-dlp %s -o - | mpv --title=\"%s\" -" url title)))))
+                        (t (format "yt-dlp --proxy socks5://localhost:9050 %s -o - | mpv --title=\"%s\" -" url title)))))
   (call-process-shell-command command nil 0)))
 
 (defun my/elfeed-view-mpv (&optional use-generic-p)

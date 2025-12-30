@@ -2,7 +2,6 @@
 #+PROPERTY: header-args:emacs-lisp :tangle ../emacs.d/package-system.el
 
 * Emacs Package System Setup
-
 ** Setup Repos
 
 #+begin_src emacs-lisp

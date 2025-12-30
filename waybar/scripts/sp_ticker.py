@@ -9,7 +9,7 @@ import finance_macros
 def pull_price_change_from_mb(exchange, symbol):
     url = f"https://www.marketbeat.com/stocks/{exchange}/{symbol}"
     user_agent = 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0' 
-    j = check_output(["curl", "-L", '-s', url, '-H', user_agent])
+    j = check_output(["curl", "--socks5-hostname", "127.0.0.1:9050", "-L", '-s', url, '-H', user_agent])
 
     addition = ""
     if "Extended Trading" in str(j):

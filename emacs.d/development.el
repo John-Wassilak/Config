@@ -30,9 +30,9 @@
   :after lsp-mode
   :hook (lsp-mode . company-mode)
   :bind (:map company-active-map
-	      ("<tab>" . company-complete-selection))
+		("<tab>" . company-complete-selection))
   (:map lsp-mode-map
-	("<tab>" . company-indent-or-complete-common))
+	  ("<tab>" . company-indent-or-complete-common))
   :custom
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.0))
@@ -62,6 +62,8 @@
           indent-tabs-mode nil))
   (add-hook 'c-mode-hook 'my-c-mode-hook)
   (add-hook 'c-mode-hook 'lsp))
+
+(use-package clang-format)
 
 (use-package ein)
 

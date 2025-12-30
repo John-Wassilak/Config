@@ -1,10 +1,12 @@
 {
-    "layer": "top", // Waybar at top layer
+    "exclusive-zone": true, //avoid windows from colliding
+    "layer": "bottom", // Waybar at bottom layer, not top
+    "output": ["eDP-1", "DP-3"],
     "position": "top", // Waybar position (top|bottom|left|right)
     "margin": "9 13 -10 18",
     // Choose the order of the modules
     "modules-left": ["hyprland/workspaces", "hyprland/submap"],
-    "modules-center": ["custom/sp_ticker", "custom/port_ticker", "clock", "custom/weather"],
+    "modules-center": ["custom/cat-thermo", "custom/heartbeat", "clock", "custom/weather"],
     "modules-right": ["pulseaudio", "custom/mem", "cpu", "temperature", "backlight", "battery", "custom/timer", "tray"],
 
 
@@ -20,19 +22,19 @@
         "format": "pon {}"
     },
 
-    "custom/sp_ticker": {
+    "custom/cat-thermo": {
         "format": "{}",
         "tooltip": true,
         "interval": 300,
-        "exec": "$HOME/.config/waybar/scripts/sp_ticker.py",
+        "exec": "$HOME/.config/waybar/scripts/cat_thermo.sh",
         "return-type": "json"
     },
 
-    "custom/port_ticker": {
+    "custom/heartbeat": {
         "format": "{}",
         "tooltip": true,
         "interval": 300,
-        "exec": "$HOME/.config/waybar/scripts/portfolio_ticker.py",
+        "exec": "$HOME/.config/waybar/scripts/heartbeat.py",
         "return-type": "json"
     },
 

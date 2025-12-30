@@ -8,4 +8,4 @@
 #--embed-sub
 
 # disable vp9 because we lack hw accel
--f "137+140/bestvideo[vcodec!~='(vp0?9|av0?1)'][id!=299]+bestaudio/best"
+-f "137+140[language=en]/bestvideo[vcodec!~='(vp0?9|av0?1)'][id!=299][fps!=60]+bestaudio[language=en]/137+140/best"

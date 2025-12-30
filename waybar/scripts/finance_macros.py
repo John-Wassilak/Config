@@ -7,10 +7,12 @@ import datetime
 import os.path
 
 
+curl_command = ["curl", "--socks5-hostname", "127.0.0.1:9050"]
+
 def pull_price_change_from_mb(exchange, symbol):
     url = f"https://www.marketbeat.com/stocks/{exchange}/{symbol}"
     user_agent = 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0' 
-    j = check_output(["curl", "-L", '-s', url, '-H', user_agent])
+    j = check_output(curl_command + ["-L", '-s', url, '-H', user_agent])
 
     addition = ""
     if "Extended Trading" in str(j):
@@ -33,7 +35,7 @@ def format_price_change(price_change):
 def pull_eps_yield():
     url = "https://www.multpl.com/s-p-500-earnings-yield"
     user_agent = 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0' 
-    j = check_output(["curl", "-L", '-s', url, '-H', user_agent, '--insecure'])
+    j = check_output(curl_command + ["-L", '-s', url, '-H', user_agent, '--insecure'])
 
     eps_yield = "0.00%"
     search = re.search(f'Current S&P 500 Earnings Yield is (.*)%, a change of', str(j), re.IGNORECASE)
@@ -45,7 +47,7 @@ def pull_eps_yield():
 def pull_US10Y():
     url = 'https://www.cnbc.com/quotes/US10Y'
     user_agent = 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0' 
-    j = check_output(["curl", "-L", '-s', url, '-H', user_agent])
+    j = check_output(curl_command + ["-L", '-s', url, '-H', user_agent])
     t_yield = "0.00%"
     search = re.search(f'"exchange":"Tradeweb","price":"(.*)%","priceChange"', str(j), re.IGNORECASE)
     if search:
@@ -56,7 +58,7 @@ def pull_US10Y():
 def pull_inflation():
     url = 'https://www.usinflationcalculator.com/inflation/current-inflation-rates/'
     user_agent = 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0' 
-    j = check_output(["curl", "-L", '-s', url, '-H', user_agent])
+    j = check_output(curl_command + ["-L", '-s', url, '-H', user_agent])
     inf = "0.00%"
     search = re.search(f'The annual inflation rate for the United States was ([0-9\\.]*)% for the', str(j), re.IGNORECASE)
     if search:
@@ -67,7 +69,7 @@ def pull_inflation():
 def pull_GDP_G():
     url = 'https://www.multpl.com/us-real-gdp-growth-rate'
     user_agent = 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0' 
-    j = check_output(["curl", "-L", '-s', url, '-H', user_agent, '--insecure'])
+    j = check_output(curl_command + ["-L", '-s', url, '-H', user_agent, '--insecure'])
     gdp = '0.00'
     search = re.search(f'Current US Real GDP Growth Rate is (.*)%.\" />', str(j), re.IGNORECASE)
     if search:
@@ -109,5 +111,3 @@ def get_macro_data():
             return write_file(fname)
     except:
         return write_file(fname)
-
-get_macro_data()
