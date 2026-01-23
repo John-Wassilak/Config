@@ -1,3 +1,30 @@
+;; dumping ground for custom stuff
+
+;; if I set a timer for an hour that's already past today
+;; ...dont run right now
+(defun my/set-24hr-timer (time-string function)
+   (interactive)
+   (let* ((24hours (* 24 60 60))
+          (timer (run-at-time time-string 24hours function)))
+     (when (> (timer-until timer (current-time)) 0)
+       (timer-inc-time timer 24hours))))
+
+
+;; cron stuff, should move out to cron, but I like seeing the output
+;; every morning..
+(when (string= (system-name) "laptop")
+  (defun my/cam-consolidation ()
+    (interactive)
+    (async-shell-command "/mnt/crypt/john/bin/cam-feed-consolidation"))
+
+  (defun my/eoc-backup ()
+    (interactive)
+    (async-shell-command "/mnt/crypt/john/bin/eoc"))
+
+  (my/set-24hr-timer "04:00am" 'my/eoc-backup)
+  (my/set-24hr-timer "05:00am" 'my/cam-consolidation))
+
+;; multimedia stuff
 ;; this keeps the Messages buffer from popping up
 (add-to-list 'display-buffer-alist
              (cons "\\*Messages\\*.*" (cons #'display-buffer-no-window nil)))
@@ -30,9 +57,7 @@
     (async-shell-command (format "%s %s %s && mpv %s ; rm -rfv %s" yt-dlp format url file_name file_name) (messages-buffer))))
 
 
-;;(message (format "%s %s && mpv %s ; rm -rfv %s"
-;;                             yt-dlp url file_name file_name))
-
+;; bluetooth headset...
 (defun bt-disconnect ()
   (interactive)
   (async-shell-command "bluetoothctl disconnect 74:45:CE:46:55:24"
@@ -42,24 +67,3 @@
   (interactive)
   (async-shell-command "bluetoothctl connect 74:45:CE:46:55:24"
                        (messages-buffer)))
-
-(setq my/reolink-token "f32b615f06fd42d")
-
-(defun my/play-cam (cam-number)
-  (interactive "nCamera Number: ")
-  (start-process-shell-command (format "cam-%d" cam-number) nil (format "mpv \"http://192.168.0.189/flv?port=1935&app=bcs&stream=channel%d_sub.bcs&token=%s\" --force-seekable=no" cam-number my/reolink-token)))
-
-(defun my/set-24hr-timer (time-string function)
-   (interactive)
-   (let* ((24hours (* 24 60 60))
-          (timer (run-at-time time-string 24hours function)))
-     (when (> (timer-until timer (current-time)) 0)
-       (timer-inc-time timer 24hours))))
-
-(defun laptop/dired-roam ()
-  (interactive)
-  (find-file "/plink:laptop:/mnt/crypt/john/org/roam/"))
-
-(defun laptop/dired-crypt ()
-  (interactive)
-  (find-file "/plink:laptop:/mnt/crypt/john/"))

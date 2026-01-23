@@ -1,47 +1,18 @@
-(load "~/config/emacs.d/package-system.el")
-(load "~/config/emacs.d/basic-ui.el")
-(load "~/config/emacs.d/helper-functions.el")
-(load "~/config/emacs.d/file-management.el")
-(load "~/config/emacs.d/terminal.el")
-(load "~/config/emacs.d/org-mode.el")
-(load "~/config/emacs.d/development.el")
-(load "~/config/emacs.d/key-bindings.el")
-(load "~/config/emacs.d/backup.el")
+(menu-bar-mode 0)
+(tool-bar-mode 0)
+(scroll-bar-mode 0)
+(column-number-mode 1)
+(setq inhibit-startup-screen t)
+(setq make-backup-files nil)
+(setq custom-file "~/.emacs.d/custom.el")
 
-(when (string= (system-name) "laptop")
-  (defun my/cam-consolidation ()
-    (interactive)
-    (async-shell-command "/mnt/crypt/john/bin/cam-feed-consolidation"))
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(global-set-key [?\s-t] (lambda () (interactive) (ansi-term "bash")))
+(global-set-key (kbd "C-.") 'duplicate-line)
 
-  (defun my/eoc-backup ()
-    (interactive)
-    (async-shell-command "/mnt/crypt/john/bin/eoc"))
+(load-file "~/config/emacs.d/package.el")
+(load-file "~/config/emacs.d/ui.el")
+(load-file "~/config/emacs.d/development.el")
+(load-file "~/config/emacs.d/rss.el")
 
-   ;;(load "~/.emacs.d/email.el")
-  (server-start) ;; since we don't have email.el loading yet...
-
-  (load "~/config/emacs.d/rss.el")
-
-  (my/set-24hr-timer "04:00am" 'my/eoc-backup)
-  (my/set-24hr-timer "05:00am" 'my/cam-consolidation))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(all-the-icons auto-package-update clang-format company-box
-		   counsel-projectile dired-hide-dotfiles dired-open
-		   doom-modeline doom-themes ein elfeed
-		   eshell-git-prompt forge haskell-mode helpful
-		   ivy-prescient ivy-rich lsp-ivy lsp-treemacs lsp-ui
-		   multiple-cursors nerd-icons-dired no-littering
-		   org-bullets org-roam python-mode pyvenv
-		   rainbow-delimiters rust-mode visual-fill-column
-		   vterm yasnippet zig-mode)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(server-start)

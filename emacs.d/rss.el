@@ -25,23 +25,18 @@
 
 (setq my/rss-feed-list (rss/load-feed-list))
 
-(use-package elfeed
-  :custom
-  (elfeed-db-directory "~/.elfeed")
-  (elfeed-feeds my/rss-feed-list)
-  (elfeed-curl-max-connections 1) ;; avoid 500s by going one-at-a-time
-  (elfeed-curl-extra-arguments `("--socks5-hostname" "127.0.0.1:9050"))
-  (url-queue-timeout 30)
-  :config
-  (setq elfeed-log-level 'warn)
-  (my/set-24hr-timer "01:00am" 'elfeed-update))
 
-(require 'elfeed)
-  ;;(async-shell-command (format "yt-dlp %s -o - | mpv -" url)))
+(rc/require 'elfeed)
+(setopt elfeed-db-directory "~/.elfeed")
+(setopt elfeed-feeds my/rss-feed-list)
+(setopt elfeed-curl-max-connections 1)
+(setopt url-queue-timeout 30)
+(setopt elfeed-log-level 'warn)
+(my/set-24hr-timer "01:00am" 'elfeed-update)
 
 (defun elfeed-v-mpv (url title)
   (let ((command (cond ((string-match-p (regexp-quote "youtube") url) (format "mpv %s" url))
-                        (t (format "yt-dlp --proxy socks5://localhost:9050 %s -o - | mpv --title=\"%s\" -" url title)))))
+                        (t (format "yt-dlp %s -o - | mpv --title=\"%s\" -" url title)))))
   (call-process-shell-command command nil 0)))
 
 (defun my/elfeed-view-mpv (&optional use-generic-p)
@@ -73,22 +68,6 @@
   (define-key elfeed-show-mode-map (kbd "l") 'my/elfeed-dl-local)
   (define-key elfeed-show-mode-map (kbd "L") 'my/elfeed-save-link)
 
-  ;; eww
-
-  ;; stream url under point
-  ;; (defun my/stream-point-url (url)
-  ;; (interactive (list (shr-url-at-point current-prefix-arg)))
-  ;; (stream url))
-
-  ;; ;; dl
-  ;;url under point
-  ;; (defun my/eww-dl-share (url)
-  ;; (interactive (list (shr-url-at-point current-prefix-arg)))
-  ;; (dl-share url))
-
-  ;; ;;(define-key eww-mode-map (kbd "m") 'my/stream-point-url)
-  ;; (define-key eww-mode-map (kbd "s") 'my/eww-dl-share)
-
 (defun my/elfeed-save-podcast (&optional use-generic-p)
   (interactive "P")
   (let ((link  (elfeed-entry-link elfeed-show-entry))
@@ -97,3 +76,12 @@
         (content (car (car (elfeed-entry-enclosures elfeed-show-entry)))))
     (when content
       (f-append (format "%s|%s|%s\n" title date content) 'utf-8 "/mnt/crypt/john/podcast/podcast_data"))))
+
+;; db cleanup, not doing automatically, should backup db first to avoid problems
+;; (add-to-list 'load-path "~/.emacs.d/elfeed-prune/")
+;; (require 'elfeed-prune)
+;; (setopt elfeed-prune-days-read 30)
+;; (setopt elfeed-prune-days-unread 365)
+;; ;; (setopt elfeed-prune-enabled t) ;; set to prune, otherwise dryrun
+;; (elfeed-prune)
+;; (elfeed-db-compact) ;; compact for good measure...then restart emacs and check

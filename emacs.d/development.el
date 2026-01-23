@@ -1,110 +1,27 @@
-(use-package all-the-icons)
 
-(defun lsp-mode-setup ()
-  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-  (lsp-headerline-breadcrumb-mode))
+;; need to clone, not in melpa
+(add-to-list 'load-path "~/.emacs.d/simpc-mode/")
+(require 'simpc-mode)
+(add-to-list 'auto-mode-alist '("\\.[hc]\\(pp\\)?\\'" . simpc-mode))
 
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :hook (lsp-mode . lsp-mode-setup)
-  :init
-  (setq lsp-keymap-prefix "C-c l")
-  :config
-  (lsp-enable-which-key-integration t))
+(rc/require 'multiple-cursors)
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->")         'mc/mark-next-like-this)
+(global-set-key (kbd "C-<")         'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<")     'mc/mark-all-like-this)
+(global-set-key (kbd "C-\"")        'mc/skip-to-next-like-this)
+(global-set-key (kbd "C-:")         'mc/skip-to-previous-like-this)
 
-(use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-doc-position 'bottom))
+;; c autoformat
+(rc/require 'clang-format)
+(global-set-key (kbd "C-M-<tab>") 'clang-format-buffer)
 
-(use-package lsp-treemacs
-  :after lsp)
+;; autocomplete (trying to skip lsp)
+(rc/require 'company)
+(add-hook 'prog-mode-hook #'company-mode)
 
-(if (string-equal system-name "SXM00164")
-  (setq treemacs-python-executable "C:\\Python312\\python.exe"))
+(rc/require 'magit)
 
-(use-package lsp-ivy
-  :after lsp)
-
-(use-package company
-  :after lsp-mode
-  :hook (lsp-mode . company-mode)
-  :bind (:map company-active-map
-		("<tab>" . company-complete-selection))
-  (:map lsp-mode-map
-	  ("<tab>" . company-indent-or-complete-common))
-  :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0))
-
-(use-package company-box
-  :hook (company-mode . company-box-mode))
-
-(use-package python-mode
-  :ensure t
-  :hook (python-mode . lsp-deferred)
-  :custom
-  (if (string-equal system-name "SXM00164")
-    (python-shell-interpreter "C:\\Python312\\python.exe")))
-
-(use-package pyvenv
-  :after python-mode
-  :config
-  (pyvenv-mode 1))
-
-(use-package yasnippet)
-(use-package cc-mode
-  :init
-  (defun my-c-mode-hook()
-    (setq c-basic-offset 4
-          c-label-offset 0
-          tab-width 4
-          indent-tabs-mode nil))
-  (add-hook 'c-mode-hook 'my-c-mode-hook)
-  (add-hook 'c-mode-hook 'lsp))
-
-(use-package clang-format)
-
-(use-package ein)
-
-(defun my-ein-font-config ()
-  (set-face-attribute 'ein:basecell-input-area-face nil :background (face-attribute 'org-block :background)))
-
-(add-hook 'ipynb-mode 'my-ein-font-config)
-
-(use-package haskell-mode)
-(use-package rust-mode)
-(use-package zig-mode)
-
-(use-package projectile
-  :diminish projectile-mode
-  :config (projectile-mode)
-  :custom ((projectile-completion-system 'ivy))
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  :init
-  ;; NOTE: Set this to the folder where you keep your Git repos!
-  (when (file-directory-p "~/projects")
-    (setq projectile-project-search-path '("~/projects")))
-  (setq projectile-switch-project-action #'projectile-dired))
-
-(use-package counsel-projectile
-  :after projectile
-  :config (counsel-projectile-mode))
-
-(use-package magit
-  :commands magit-status
-  :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-
-;; NOTE: Make sure to configure a GitHub token before using this package!
-;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
-;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
-(use-package forge
-  :after magit)
-
-;;   Set github.user=john.wassilak@omes.ok.gov [g]lobally (recommended) or [l]ocally? g
-;; ghub--token: Required Github token ("john.wassilak@omes.ok.gov^forge" for "api.github.com") does not exist.
-;; See https://magit.vc/manual/ghub/Getting-Started.html
-;; or (info "(ghub)Getting Started") for instructions.
-;; (The setup wizard no longer exists.)
+;; other syntax modes
+(rc/require 'terraform-mode
+	    'yaml-mode)
