@@ -9,6 +9,7 @@
 (setq mu4e-get-mail-command "mbsync -a")
 (setq mu4e-maildir "~/email")
 (setq mu4e-trash-without-flag t)
+(setq mu4e-context-policy 'pick-first)
 
 ;; Configure the function to use for sending mail
 (setq message-send-mail-function 'smtpmail-send-it)
@@ -68,3 +69,11 @@
     (if result
         (funcall (plist-get (car result) :secret))
       nil)))
+
+;; run at startup
+(mu4e t)
+
+;; setup notification-daemon alerts
+(rc/require 'mu4e-alert)
+(mu4e-alert-set-default-style 'notifications)
+(mu4e-alert-enable-notifications)

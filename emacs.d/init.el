@@ -10,12 +10,14 @@
 (global-set-key [?\s-t] (lambda () (interactive) (ansi-term "bash")))
 (global-set-key (kbd "C-.") 'duplicate-line)
 
+(server-start) ;; needed by sub-modules
+
 ;; note, hardlinked...
-(load-file "~/config/emacs.d/package.el")
+(load-file "~/config/emacs.d/package.el") ;; needed by rest of sub-modules
+(load-file "~/config/emacs.d/my.el")      ;; needed for some sub-modules
+
 (load-file "~/config/emacs.d/ui.el")
 (load-file "~/config/emacs.d/development.el")
-(load-file "~/config/emacs.d/my.el")
 (load-file "~/config/emacs.d/rss.el")
 (load-file "~/config/emacs.d/file.el")
-
-(server-start)
+(load-file "~/config/emacs.d/email.el")

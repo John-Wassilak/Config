@@ -8,6 +8,8 @@ declare -A links=(
     ["$HOME/.config/mpv"]="$HOME/config/mpv"
     ["$HOME/.config/waybar"]="$HOME/config/waybar"
     ["$HOME/.config/yt-dlp"]="$HOME/config/yt-dlp"
+    ["$HOME/.mbsyncrc"]="$HOME/config/isync/mbsyncrc"
+    ["$HOME/.config/wofi"]="$HOME/config/wofi"
 )
 
 for LINK in "${!links[@]}"; do

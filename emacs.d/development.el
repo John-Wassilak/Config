@@ -37,6 +37,7 @@
 
 ;; magit
 (rc/require 'magit)
+(setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
 
 ;; other syntax modes
 (rc/require 'terraform-mode

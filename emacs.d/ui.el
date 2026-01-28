@@ -39,6 +39,7 @@
 
 (rc/require 'ivy)
 (ivy-mode 1)
+(keymap-set ivy-minibuffer-map "TAB" #'ivy-alt-done)
 
 (rc/require 'swiper)
 (keymap-global-set "C-s" #'swiper-isearch)
