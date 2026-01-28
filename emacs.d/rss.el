@@ -77,6 +77,8 @@
     (when content
       (f-append (format "%s|%s|%s\n" title date content) 'utf-8 "/mnt/crypt/john/podcast/podcast_data"))))
 
+(global-set-key (kbd "C-c e") 'elfeed)
+
 ;; db cleanup, not doing automatically, should backup db first to avoid problems
 ;; (add-to-list 'load-path "~/.emacs.d/elfeed-prune/")
 ;; (require 'elfeed-prune)

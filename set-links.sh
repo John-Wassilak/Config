@@ -10,6 +10,9 @@ declare -A links=(
     ["$HOME/.config/yt-dlp"]="$HOME/config/yt-dlp"
     ["$HOME/.mbsyncrc"]="$HOME/config/isync/mbsyncrc"
     ["$HOME/.config/wofi"]="$HOME/config/wofi"
+    ["$HOME/.bash_logout"]="$HOME/config/bash/bash_logout"
+    ["$HOME/.bash_profile"]="$HOME/config/bash/bash_profile"
+    ["$HOME/.bashrc"]="$HOME/config/bash/bashrc"
 )
 
 for LINK in "${!links[@]}"; do

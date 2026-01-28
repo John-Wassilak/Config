@@ -64,6 +64,11 @@
 					 ("/fatcow-john/Drafts"  . ?d)
 					 ("/fatcow-john/Spam"    . ?a)))))))
 
+(setq mu4e-bookmarks
+      '((:name "All Mail"
+         :query "NOT maildir:/.*Trash.*/ AND NOT maildir:/.*Spam.*/ AND NOT maildir:/.*Junk.*/ AND NOT maildir:/.*Sent.*/ AND NOT maildir:/.*Drafts.*/"
+         :key ?a)))
+
 (defun my/lookup-password (&rest keys)
   (let ((result (apply #'auth-source-search keys)))
     (if result
@@ -77,3 +82,6 @@
 (rc/require 'mu4e-alert)
 (mu4e-alert-set-default-style 'notifications)
 (mu4e-alert-enable-notifications)
+(mu4e-alert-disable-mode-line-display)
+
+(global-set-key (kbd "C-c m") 'mu4e)
