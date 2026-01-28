@@ -1,0 +1,48 @@
+IMAPAccount gmail-cobus
+Host imap.gmail.com
+User cobus.jjimjilbang@gmail.com
+PassCmd "cat ~/.oh-no-insecure-password"
+PassCmd "emacsclient -e \"(my/lookup-password :host \\\"gmail.com\\\" :user \\\"cobus.jjimjilbang@gmail.com\\\")\" | cut -d '\"' -f2"
+TLSType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore gmail-cobus-remote
+Account gmail-cobus
+
+MaildirStore gmail-cobus-local
+Subfolders Verbatim
+Path ~/email/gmail-cobus/
+Inbox ~/email/gmail-cobus/Inbox
+
+Channel gmail-cobus
+Far :gmail-cobus-remote:
+Near :gmail-cobus-local:
+Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail" "[Gmail]/Trash"
+Expunge Both
+Sync All
+Create Both
+SyncState *
+
+IMAPAccount fatcow-john
+Host imap.fatcow.com
+User john@wassilak.com
+PassCmd "emacsclient -e \"(my/lookup-password :host \\\"fatcow.com\\\" :user \\\"john@wassilak.com\\\")\" | cut -d '\"' -f2"
+TLSType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore fatcow-john-remote
+Account fatcow-john
+
+MaildirStore fatcow-john-local
+Path ~/email/fatcow-john/
+Inbox ~/email/fatcow-john/INBOX/
+SubFolders Verbatim
+
+Channel fatcow-john
+Far :fatcow-john-remote:
+Near :fatcow-john-local:
+Patterns *
+Expunge Both
+Sync All
+Create Both
+SyncState *
