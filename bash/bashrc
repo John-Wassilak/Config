@@ -15,3 +15,9 @@ fi
 
 # Put your fun stuff here.
 PATH=$PATH:/home/john/scripts
+
+alias dl="/mnt/crypt/john/yt-dlp/yt-dlp.sh"
+alias dl-audio="dl --format m4a/bestaudio --extract-audio --audio-format mp3"
+alias rs="rsync -avzP"
+alias jumpbox-dl="rs jumpbox:/var/lib/transmission/Downloads/* ."
+alias kodi-update="ssh pi-master-tv 'kodi-send --action=\"UpdateLibrary(video)\"'"

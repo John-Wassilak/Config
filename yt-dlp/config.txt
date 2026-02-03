@@ -7,5 +7,8 @@
 #--write-auto-sub
 #--embed-sub
 
-# disable vp9 because we lack hw accel
--f "137+140[language=en]/bestvideo[vcodec!~='(vp0?9|av0?1)'][id!=299][fps!=60]+bestaudio[language=en]/137+140/best"
+# Prefer non-VP9/AV1 codecs and 30fps or lower globally
+-S "vcodec:h264,fps:30"
+
+# Simplify selection to handle your language and resolution fallback
+-f "137+140[language=en]/bestvideo[language=en]+bestaudio[language=en]/best"

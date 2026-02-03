@@ -3,11 +3,11 @@
 ;; if I set a timer for an hour that's already past today
 ;; ...dont run right now
 (defun my/set-24hr-timer (time-string function)
-   (interactive)
-   (let* ((24hours (* 24 60 60))
-          (timer (run-at-time time-string 24hours function)))
-     (when (> (timer-until timer (current-time)) 0)
-       (timer-inc-time timer 24hours))))
+  (interactive)
+  (let* ((24hours (* 24 60 60))
+         (timer (run-at-time time-string 24hours function)))
+    (when (> (timer-until timer (current-time)) 0)
+      (timer-inc-time timer 24hours))))
 
 
 ;; cron stuff, should move out to cron, but I like seeing the output
@@ -15,14 +15,27 @@
 (when (string= (system-name) "laptop")
   (defun my/cam-consolidation ()
     (interactive)
-    (async-shell-command "/mnt/crypt/john/bin/cam-feed-consolidation"))
+    (async-shell-command "/mnt/crypt/john/bin/cam-feed-consolidation" "*cam-consolidation*"))
 
   (defun my/eoc-backup ()
     (interactive)
-    (async-shell-command "/mnt/crypt/john/bin/eoc"))
+    (async-shell-command "/mnt/crypt/john/bin/eoc" "*eoc-backup*"))
+
+  (defun my/gentoo-update ()
+    (interactive)
+    (let ((buffer-name "*Gentoo Update*"))
+      (shell buffer-name)
+      (process-send-string buffer-name "gentoo-update.sh && gentoo-cleanup-files.sh\n")
+      (display-buffer buffer-name)))
+
+  (defun my/random-quote ()
+    (interactive)
+    (async-shell-command "display-quote.sh" "*random-quote*"))
 
   (my/set-24hr-timer "04:00am" 'my/eoc-backup)
-  (my/set-24hr-timer "05:00am" 'my/cam-consolidation))
+  (my/set-24hr-timer "05:00am" 'my/cam-consolidation)
+  (my/set-24hr-timer "05:30am" 'my/random-quote)
+  (my/set-24hr-timer "06:00am" 'my/gentoo-update))
 
 ;; multimedia stuff
 ;; this keeps the Messages buffer from popping up

@@ -19,7 +19,13 @@
 (rc/require 'clang-format)
 (define-key simpc-mode-map (kbd "C-M-<tab>") 'clang-format-buffer)
 
-;; elisp and bash autoformat
+;; other syntax modes
+(rc/require 'lua-mode
+	    'terraform-mode
+	    'markdown-mode
+	    'yaml-mode)
+
+;; autoformat for other langs
 (defun my/indent-whole-buffer ()
   "Select the whole buffer and indent it."
   (interactive)
@@ -27,6 +33,7 @@
         (end (point-max)))
     (indent-region start end)))
 (define-key emacs-lisp-mode-map (kbd "C-M-<tab>") 'my/indent-whole-buffer)
+(define-key lua-mode-map (kbd "C-M-<tab>") 'my/indent-whole-buffer)
 (add-hook 'sh-mode-hook
           (lambda ()
             (define-key sh-mode-map (kbd "C-M-<tab>") 'my/indent-whole-buffer))) ;; not available at startup...
@@ -39,7 +46,3 @@
 (rc/require 'magit)
 (setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
 
-;; other syntax modes
-(rc/require 'terraform-mode
-	    'markdown-mode
-	    'yaml-mode)
