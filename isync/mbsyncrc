@@ -1,7 +1,6 @@
 IMAPAccount gmail-cobus
 Host imap.gmail.com
 User cobus.jjimjilbang@gmail.com
-PassCmd "cat ~/.oh-no-insecure-password"
 PassCmd "emacsclient -e \"(my/lookup-password :host \\\"gmail.com\\\" :user \\\"cobus.jjimjilbang@gmail.com\\\")\" | cut -d '\"' -f2"
 TLSType IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
@@ -22,6 +21,34 @@ Expunge Both
 Sync All
 Create Both
 SyncState *
+
+################################################
+
+IMAPAccount infocus
+Host imap.gmail.com
+User john@infocusdata.com
+PassCmd "emacsclient -e \"(my/lookup-password :host \\\"gmail.com\\\" :user \\\"john@infocusdata.com\\\")\" | cut -d '\"' -f2"
+TLSType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore infocus-remote
+Account infocus
+
+MaildirStore infocus-local
+Subfolders Verbatim
+Path ~/email/infocus/
+Inbox ~/email/infocus/Inbox
+
+Channel infocus
+Far :infocus-remote:
+Near :infocus-local:
+Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail" "[Gmail]/Trash"
+Expunge Both
+Sync All
+Create Both
+SyncState *
+
+########################################################
 
 IMAPAccount fatcow-john
 Host imap.fatcow.com

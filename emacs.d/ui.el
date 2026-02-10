@@ -56,3 +56,9 @@
 (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
 
 (rc/require 'treemacs)
+
+;; spelling
+(rc/require 'jinx)
+(dolist (hook '(text-mode-hook prog-mode-hook conf-mode-hook))
+  (add-hook hook #'jinx-mode))
+(keymap-global-set "M-$" #'jinx-correct)

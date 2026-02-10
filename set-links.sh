@@ -13,6 +13,9 @@ declare -A links=(
     ["$HOME/.bash_logout"]="$HOME/config/bash/bash_logout"
     ["$HOME/.bash_profile"]="$HOME/config/bash/bash_profile"
     ["$HOME/.bashrc"]="$HOME/config/bash/bashrc"
+    ["$HOME/.vdirsyncer"]="$HOME/config/vdirsyncer"
+    ["$HOME/.config/khal"]="$HOME/config/khal"
+    ["$HOME/.config/DankMaterialShell"]="$HOME/config/DankMaterialShell"
 )
 
 for LINK in "${!links[@]}"; do

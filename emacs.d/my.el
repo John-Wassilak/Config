@@ -32,7 +32,12 @@
     (interactive)
     (async-shell-command "display-quote.sh" "*random-quote*"))
 
+  (defun my/khal ()
+    (interactive)
+    (async-shell-command "khal list --format '{start-time}-{end-time} {title}' today 5d" "*khal*"))
+
   (my/set-24hr-timer "04:00am" 'my/eoc-backup)
+  (my/set-24hr-timer "04:30am" 'my/khal)
   (my/set-24hr-timer "05:00am" 'my/cam-consolidation)
   (my/set-24hr-timer "05:30am" 'my/random-quote)
   (my/set-24hr-timer "06:00am" 'my/gentoo-update))
@@ -42,7 +47,7 @@
 (add-to-list 'display-buffer-alist
              (cons "\\*Messages\\*.*" (cons #'display-buffer-no-window nil)))
 
-(setq yt-dlp-base-command "/mnt/crypt/john/yt-dlp/yt-dlp.sh --sub-lang en --write-auto-sub --embed-sub")
+(setq yt-dlp-base-command "/home/john/packages/yt-dlp/yt-dlp.sh --sub-lang en --write-auto-sub --embed-sub")
 
 ;; dl url to typical vid folder
 (defun dl-local (url)

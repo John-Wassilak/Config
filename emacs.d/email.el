@@ -40,7 +40,28 @@
 					 ("/gmail-cobus/[Gmail]/Trash"     . ?t)
 					 ("/gmail-cobus/[Gmail]/Drafts"    . ?d)
 					 ("/gmail-cobus/[Gmail]/All Mail"  . ?a)))))
-
+       ;; infocus
+       (make-mu4e-context
+        :name "infocus"
+        :match-func
+        (lambda (msg)
+          (when msg
+            (string-prefix-p "/infocus" (mu4e-message-field msg :maildir))))
+        :vars '((user-mail-address . "john@infocusdata.com")
+                (user-full-name    . "John Wassilak")
+		(smtpmail-smtp-server  . "smtp.gmail.com")
+                (smtpmail-smtp-service . 465)
+                (smtpmail-stream-type  . ssl)
+                (mu4e-drafts-folder  . "/infocus/[Gmail]/Drafts")
+                (mu4e-sent-folder  . "/infocus/[Gmail]/Sent Mail")
+                (mu4e-refile-folder  . "/infocus/[Gmail]/All Mail")
+                (mu4e-trash-folder  . "/infocus/[Gmail]/Trash")
+		(mu4e-maildir-shortcuts .
+					(("/infocus/Inbox"             . ?i)
+					 ("/infocus/[Gmail]/Sent Mail" . ?s)
+					 ("/infocus/[Gmail]/Trash"     . ?t)
+					 ("/infocus/[Gmail]/Drafts"    . ?d)
+					 ("/infocus/[Gmail]/All Mail"  . ?a)))))
        ;; fatcow-john
        (make-mu4e-context
 	:name "fatcow-john"
@@ -66,8 +87,8 @@
 
 (setq mu4e-bookmarks
       '((:name "All Mail"
-         :query "NOT maildir:/.*Trash.*/ AND NOT maildir:/.*Spam.*/ AND NOT maildir:/.*Junk.*/ AND NOT maildir:/.*Sent.*/ AND NOT maildir:/.*Drafts.*/"
-         :key ?a)))
+               :query "NOT maildir:/.*Trash.*/ AND NOT maildir:/.*Spam.*/ AND NOT maildir:/.*Junk.*/ AND NOT maildir:/.*Sent.*/ AND NOT maildir:/.*Drafts.*/ AND NOT maildir:/.*All.*/"
+               :key ?a)))
 
 (defun my/lookup-password (&rest keys)
   (let ((result (apply #'auth-source-search keys)))

@@ -21,6 +21,7 @@
 
 ;; other syntax modes
 (rc/require 'lua-mode
+	    'json-mode
 	    'terraform-mode
 	    'markdown-mode
 	    'yaml-mode)
