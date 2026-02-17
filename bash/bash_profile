@@ -9,4 +9,5 @@ if [ -z "${DISPLAY}" ] && [ "$(tty)" = "/dev/tty1" ]; then
     /home/john/scripts/mount-crypt.sh
     /home/john/scripts/firewall.sh
     eval "$(ssh-agent)" > /dev/null
+    ssh-add
 fi

@@ -73,3 +73,55 @@ Expunge Both
 Sync All
 Create Both
 SyncState *
+
+##################################################
+
+IMAPAccount fatcow-consulting
+Host imap.fatcow.com
+User consulting@wassilak.com
+PassCmd "emacsclient -e \"(my/lookup-password :host \\\"fatcow.com\\\" :user \\\"consulting@wassilak.com\\\")\" | cut -d '\"' -f2"
+TLSType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore fatcow-consulting-remote
+Account fatcow-consulting
+
+MaildirStore fatcow-consulting-local
+Path ~/email/fatcow-consulting/
+Inbox ~/email/fatcow-consulting/INBOX/
+SubFolders Verbatim
+
+Channel fatcow-consulting
+Far :fatcow-consulting-remote:
+Near :fatcow-consulting-local:
+Patterns *
+Expunge Both
+Sync All
+Create Both
+SyncState *
+
+##################################################
+
+IMAPAccount fatcow-jwassilak
+Host imap.fatcow.com
+User jwassilak@wassilak.com
+PassCmd "emacsclient -e \"(my/lookup-password :host \\\"fatcow.com\\\" :user \\\"jwassilak@wassilak.com\\\")\" | cut -d '\"' -f2"
+TLSType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore fatcow-jwassilak-remote
+Account fatcow-jwassilak
+
+MaildirStore fatcow-jwassilak-local
+Path ~/email/fatcow-jwassilak/
+Inbox ~/email/fatcow-jwassilak/INBOX/
+SubFolders Verbatim
+
+Channel fatcow-jwassilak
+Far :fatcow-jwassilak-remote:
+Near :fatcow-jwassilak-local:
+Patterns *
+Expunge Both
+Sync All
+Create Both
+SyncState *

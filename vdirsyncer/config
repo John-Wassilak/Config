@@ -1,16 +1,12 @@
 [general]
 status_path = "~/calendars/status"
 
+
+####################### infocus
+
 [pair infocus_sync]
 a = "infocus"
 b = "infocus_local"
-collections = ["from a", "from b"]
-conflict_resolution = "a wins"
-metadata = ["color"]
-
-[pair fam_sync]
-a = "fam"
-b = "fam_local"
 collections = ["from a", "from b"]
 conflict_resolution = "a wins"
 metadata = ["color"]
@@ -21,18 +17,47 @@ token_file = "~/.vdirsyncer/ifd_google_calendar_token"
 client_id.fetch = ["command", "secret-tool", "lookup", "infocus_cal", "client_id"]
 client_secret.fetch = ["command", "secret-tool", "lookup", "infocus_cal", "client_secret"]
 
+[storage infocus_local]
+type = "filesystem"
+path = "~/calendars/infocus"
+fileext = ".ics"
+
+########################### fam cal
+
+[pair fam_sync]
+a = "fam"
+b = "fam_local"
+collections = ["from a", "from b"]
+conflict_resolution = "a wins"
+metadata = ["color"]
+
 [storage fam]
 type = "google_calendar"
 token_file = "~/.vdirsyncer/fam_google_calendar_token"
 client_id.fetch = ["command", "secret-tool", "lookup", "fam_cal", "client_id"]
 client_secret.fetch = ["command", "secret-tool", "lookup", "fam_cal", "client_secret"]
 
-[storage infocus_local]
-type = "filesystem"
-path = "~/calendars/infocus"
-fileext = ".ics"
-
 [storage fam_local]
 type = "filesystem"
 path = "~/calendars/fam"
+fileext = ".ics"
+
+########################### cobus cal
+
+[pair cobus_sync]
+a = "cobus"
+b = "cobus_local"
+collections = ["from a", "from b"]
+conflict_resolution = "a wins"
+metadata = ["color"]
+
+[storage cobus]
+type = "google_calendar"
+token_file = "~/.vdirsyncer/cobus_google_calendar_token"
+client_id.fetch = ["command", "secret-tool", "lookup", "cobus_cal", "client_id"]
+client_secret.fetch = ["command", "secret-tool", "lookup", "cobus_cal", "client_secret"]
+
+[storage cobus_local]
+type = "filesystem"
+path = "~/calendars/cobus"
 fileext = ".ics"

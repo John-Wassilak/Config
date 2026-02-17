@@ -1,7 +1,7 @@
 ;; dumping ground for custom stuff
 
 ;; if I set a timer for an hour that's already past today
-;; ...dont run right now
+;; ...don't run right now
 (defun my/set-24hr-timer (time-string function)
   (interactive)
   (let* ((24hours (* 24 60 60))
@@ -39,8 +39,7 @@
   (my/set-24hr-timer "04:00am" 'my/eoc-backup)
   (my/set-24hr-timer "04:30am" 'my/khal)
   (my/set-24hr-timer "05:00am" 'my/cam-consolidation)
-  (my/set-24hr-timer "05:30am" 'my/random-quote)
-  (my/set-24hr-timer "06:00am" 'my/gentoo-update))
+  (my/set-24hr-timer "05:30am" 'my/random-quote))
 
 ;; multimedia stuff
 ;; this keeps the Messages buffer from popping up

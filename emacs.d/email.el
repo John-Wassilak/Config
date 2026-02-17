@@ -62,6 +62,51 @@
 					 ("/infocus/[Gmail]/Trash"     . ?t)
 					 ("/infocus/[Gmail]/Drafts"    . ?d)
 					 ("/infocus/[Gmail]/All Mail"  . ?a)))))
+       ;; fatcow-consulting
+       (make-mu4e-context
+	:name "consulting"
+	:match-func
+	(lambda (msg)
+          (when msg
+            (string-prefix-p "/fatcow-consulting" (mu4e-message-field msg :maildir))))
+	:vars '((user-mail-address . "consulting@wassilak.com")
+		(user-full-name    . "Wassilak Consulting")
+		(smtpmail-smtp-server  . "smtp.fatcow.com")
+		(smtpmail-smtp-service . 465)
+		(smtpmail-stream-type  . ssl)
+		(mu4e-drafts-folder  . "/fatcow-consulting/Drafts")
+		(mu4e-sent-folder  . "/fatcow-consulting/Sent")
+		(mu4e-refile-folder  . "/fatcow-consulting/Archive")
+		(mu4e-trash-folder  . "/fatcow-consulting/Trash")
+		(mu4e-maildir-shortcuts .
+					(("/fatcow-consulting/INBOX"   . ?i)
+					 ("/fatcow-consulting/Sent"    . ?s)
+					 ("/fatcow-consulting/Trash"   . ?t)
+					 ("/fatcow-consulting/Drafts"  . ?d)
+					 ("/fatcow-consulting/Spam"    . ?a)))))
+
+       ;; fatcow-jwassilak
+       (make-mu4e-context
+	:name "jwassilak"
+	:match-func
+	(lambda (msg)
+          (when msg
+            (string-prefix-p "/fatcow-jwassilak" (mu4e-message-field msg :maildir))))
+	:vars '((user-mail-address . "jwassilak@wassilak.com")
+		(user-full-name    . "John Wassilak")
+		(smtpmail-smtp-server  . "smtp.fatcow.com")
+		(smtpmail-smtp-service . 465)
+		(smtpmail-stream-type  . ssl)
+		(mu4e-drafts-folder  . "/fatcow-jwassilak/Drafts")
+		(mu4e-sent-folder  . "/fatcow-jwassilak/Sent")
+		(mu4e-refile-folder  . "/fatcow-jwassilak/Archive")
+		(mu4e-trash-folder  . "/fatcow-jwassilak/Trash")
+		(mu4e-maildir-shortcuts .
+					(("/fatcow-jwassilak/INBOX"   . ?i)
+					 ("/fatcow-jwassilak/Sent"    . ?s)
+					 ("/fatcow-jwassilak/Trash"   . ?t)
+					 ("/fatcow-jwassilak/Drafts"  . ?d)
+					 ("/fatcow-jwassilak/Spam"    . ?a)))))
        ;; fatcow-john
        (make-mu4e-context
 	:name "fatcow-john"

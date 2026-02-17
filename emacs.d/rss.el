@@ -61,7 +61,7 @@
   (defun my/elfeed-save-link (&optional use-generic-p)
     (interactive "P")
     (let ((link  (elfeed-entry-link elfeed-show-entry)))
-      (f-append (format "%s\n" link) 'utf-8 "/home/john/vid/links")))
+      (f-append (format "%s\n" link) 'utf-8 "/home/john/links")))
 
   (define-key elfeed-show-mode-map (kbd "v") 'my/elfeed-view-mpv)
   (define-key elfeed-show-mode-map (kbd "s") 'my/elfeed-dl-share)
