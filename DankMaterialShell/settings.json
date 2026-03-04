@@ -383,6 +383,10 @@
         {
           "name": "DP-3",
           "model": "SONY TV"
+        },
+        {
+          "name": "DP-4",
+          "model": "SONY TV"
         }
       ],
       "showOnLastDisplay": true,

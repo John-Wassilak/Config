@@ -1,6 +1,6 @@
 (setq my/rss-yt-prefix "https://www.youtube.com/feeds/videos.xml?channel_id=")
 
-(setq rss/feed-file "/home/john/rss-list.csv")
+(setq rss/feed-file "/mnt/crypt/john/nextcloud/config/rss-list.csv")
 
 (defun rss/parse-row (row)
   (let* ((raw-url (nth 1 row))
@@ -25,48 +25,56 @@
 
 (setq my/rss-feed-list (rss/load-feed-list))
 
-
-(rc/require 'elfeed)
-(setopt elfeed-db-directory "~/.elfeed")
-(setopt elfeed-feeds my/rss-feed-list)
-(setopt elfeed-curl-max-connections 1)
-(setopt url-queue-timeout 30)
-(setopt elfeed-log-level 'warn)
-(my/set-24hr-timer "01:00am" 'elfeed-update)
+;; only spin up elfeed db if the list is found
+;; to avoid accidental re-init
+(if (null my/rss-feed-list)
+    (error "The feed list is empty!")
+  (rc/require 'elfeed)
+  (setopt elfeed-db-directory "~/.elfeed")
+  (setopt elfeed-feeds my/rss-feed-list)
+  (setopt elfeed-curl-max-connections 1)
+  (setopt url-queue-timeout 30)
+  (setopt elfeed-log-level 'warn)
+  (my/set-24hr-timer "01:00am" 'elfeed-update))
 
 (defun elfeed-v-mpv (url title)
   (let ((command (cond ((string-match-p (regexp-quote "youtube") url) (format "mpv %s" url))
-                        (t (format "yt-dlp %s -o - | mpv --title=\"%s\" -" url title)))))
-  (call-process-shell-command command nil 0)))
+                       (t (format "yt-dlp %s -o - | mpv --title=\"%s\" -" url title)))))
+    (call-process-shell-command command nil 0)))
 
 (defun my/elfeed-view-mpv (&optional use-generic-p)
-    (interactive "P")
-    (let ((link (elfeed-entry-link elfeed-show-entry))
-          (title (elfeed-entry-title elfeed-show-entry)))
-      (when link
-        (elfeed-v-mpv link title))))
+  (interactive "P")
+  (let ((link (elfeed-entry-link elfeed-show-entry))
+        (title (elfeed-entry-title elfeed-show-entry)))
+    (when link
+      (elfeed-v-mpv link title))))
 
-  (defun my/elfeed-dl-share (&optional use-generic-p)
-    (interactive "P")
-    (let ((link (elfeed-entry-link elfeed-show-entry)))
-      (when link
-        (dl-share link))))
+(defun my/elfeed-dl-share (&optional use-generic-p)
+  (interactive "P")
+  (let ((link (elfeed-entry-link elfeed-show-entry)))
+    (when link
+      (dl-share link))))
 
-  (defun my/elfeed-dl-local (&optional use-generic-p)
-    (interactive "P")
-    (let ((link (elfeed-entry-link elfeed-show-entry)))
-      (when link
-        (dl-local link))))
+(defun my/elfeed-dl-local (&optional use-generic-p)
+  (interactive "P")
+  (let ((link (elfeed-entry-link elfeed-show-entry)))
+    (when link
+      (dl-local link))))
 
-  (defun my/elfeed-save-link (&optional use-generic-p)
-    (interactive "P")
-    (let ((link  (elfeed-entry-link elfeed-show-entry)))
-      (f-append (format "%s\n" link) 'utf-8 "/home/john/links")))
+(defun my/elfeed-save-link (&optional use-generic-p)
+  (interactive "P")
+  (let ((link  (elfeed-entry-link elfeed-show-entry)))
+    (f-append (format "%s\n" link) 'utf-8 "/home/john/links")))
 
-  (define-key elfeed-show-mode-map (kbd "v") 'my/elfeed-view-mpv)
-  (define-key elfeed-show-mode-map (kbd "s") 'my/elfeed-dl-share)
-  (define-key elfeed-show-mode-map (kbd "l") 'my/elfeed-dl-local)
-  (define-key elfeed-show-mode-map (kbd "L") 'my/elfeed-save-link)
+(defun my/elfeed-quick-save-link(&optional use-generic-p)
+  (interactive "P")
+  (my/elfeed-save-link use-generic-p)
+  (elfeed-show-next))
+
+(define-key elfeed-show-mode-map (kbd "v") 'my/elfeed-view-mpv)
+(define-key elfeed-show-mode-map (kbd "s") 'my/elfeed-dl-share)
+(define-key elfeed-show-mode-map (kbd "l") 'my/elfeed-quick-save-link)
+(define-key elfeed-show-mode-map (kbd "L") 'my/elfeed-save-link)
 
 (defun my/elfeed-save-podcast (&optional use-generic-p)
   (interactive "P")

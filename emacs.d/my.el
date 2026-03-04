@@ -57,7 +57,7 @@
 ;; dl url to typical share folder
 (defun dl-share (url)
   (interactive "sURL: ")
-  (async-shell-command (format "%s -P home:/mnt/crypt/john/web_server/Youtube/ %s" yt-dlp-base-command url)
+  (async-shell-command (format "%s -P home:/mnt/crypt/john/web_server/ %s" yt-dlp-base-command url)
                        (messages-buffer)))
 
 (defun stream (url)

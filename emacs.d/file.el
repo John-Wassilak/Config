@@ -4,6 +4,7 @@
 
 (rc/require 'dired-open)
 (setopt dired-open-extensions '(("png" . "imv")
+				("docx" . "libreoffice")
 				("mp4" . "mpv --sid=1")
 				("mp3" . "mpv")
 				("webm". "mpv --sid=1")

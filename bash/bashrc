@@ -14,16 +14,16 @@ fi
 
 
 # Put your fun stuff here.
-PATH=$PATH:/home/john/scripts
+PATH=$PATH:/home/john/scripts:/home/john/.local/bin
 
 alias rm="rm -i"
 alias mv="mv -i"
 alias cp="cp -i"
 
-alias dl="/home/john/packages/yt-dlp/yt-dlp.sh"
-alias dl-audio="dl --format m4a/bestaudio --extract-audio --audio-format mp3"
-alias dl-tor="dl --proxy socks5://localhost:9050"
-alias dl-jumpbox="dl --proxy socks5://localhost:9051"
+alias dl="/home/john/scripts/yt-dlp-wrapper.sh"
+alias dl-audio="yt-dlp --format m4a/bestaudio --extract-audio --audio-format mp3"
+alias dl-tor="yt-dlp --proxy socks5://localhost:9050"
+alias dl-jumpbox="yt-dlp --proxy socks5://localhost:9051"
 alias curl-tor="curl --proxy socks5://localhost:9050"
 alias rs="rsync -avzP"
 alias jumpbox-dl="rs jumpbox:/var/lib/transmission/Downloads/* ."

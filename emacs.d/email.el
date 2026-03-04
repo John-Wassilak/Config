@@ -1,5 +1,6 @@
 (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e/")
 (require 'mu4e)
+(require 'smtpmail)
 
 ;; This is set to 't' to avoid mail syncing issues when using mbsync
 (setq mu4e-change-filenames-when-moving t)
@@ -28,6 +29,7 @@
         :vars '((user-mail-address . "cobus.jjimjilbang@gmail.com")
                 (user-full-name    . "Cobus Jjimjilbang")
 		(smtpmail-smtp-server  . "smtp.gmail.com")
+		(smtpmail-smtp-user  . "cobus.jjimjilbang@gmail.com")
                 (smtpmail-smtp-service . 465)
                 (smtpmail-stream-type  . ssl)
                 (mu4e-drafts-folder  . "/gmail-cobus/[Gmail]/Drafts")
@@ -50,6 +52,7 @@
         :vars '((user-mail-address . "john@infocusdata.com")
                 (user-full-name    . "John Wassilak")
 		(smtpmail-smtp-server  . "smtp.gmail.com")
+		(smtpmail-smtp-user  . "john@infocusdata.com")
                 (smtpmail-smtp-service . 465)
                 (smtpmail-stream-type  . ssl)
                 (mu4e-drafts-folder  . "/infocus/[Gmail]/Drafts")
@@ -72,6 +75,7 @@
 	:vars '((user-mail-address . "consulting@wassilak.com")
 		(user-full-name    . "Wassilak Consulting")
 		(smtpmail-smtp-server  . "smtp.fatcow.com")
+		(smtpmail-smtp-user  . "consulting@wassilak.com")
 		(smtpmail-smtp-service . 465)
 		(smtpmail-stream-type  . ssl)
 		(mu4e-drafts-folder  . "/fatcow-consulting/Drafts")
@@ -95,6 +99,7 @@
 	:vars '((user-mail-address . "jwassilak@wassilak.com")
 		(user-full-name    . "John Wassilak")
 		(smtpmail-smtp-server  . "smtp.fatcow.com")
+		(smtpmail-smtp-user  . "jwassilak@wassilak.com")
 		(smtpmail-smtp-service . 465)
 		(smtpmail-stream-type  . ssl)
 		(mu4e-drafts-folder  . "/fatcow-jwassilak/Drafts")
@@ -117,6 +122,7 @@
 	:vars '((user-mail-address . "john@wassilak.com")
 		(user-full-name    . "John Wassilak")
 		(smtpmail-smtp-server  . "smtp.fatcow.com")
+		(smtpmail-smtp-user  . "john@wassilak.com")
 		(smtpmail-smtp-service . 465)
 		(smtpmail-stream-type  . ssl)
 		(mu4e-drafts-folder  . "/fatcow-john/Drafts")
@@ -149,5 +155,8 @@
 (mu4e-alert-set-default-style 'notifications)
 (mu4e-alert-enable-notifications)
 (mu4e-alert-disable-mode-line-display)
+(setq mu4e-alert-email-notification-types '(subjects))
+
+(setq mu4e-alert-interesting-mail-query "flag:unread AND NOT flag:trashed AND NOT maildir:/.*Trash.*/ AND NOT maildir:/.*Spam.*/ AND NOT maildir:/.*Junk.*/ AND NOT maildir:/.*Sent.*/ AND NOT maildir:/.*Drafts.*/ AND NOT maildir:/.*All.*/ AND date:1h..now")
 
 (global-set-key (kbd "C-c m") 'mu4e)
