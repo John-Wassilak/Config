@@ -12,6 +12,10 @@ if [[ $- != *i* ]] ; then
 	return
 fi
 
+vterm_prompt_end() {                                                                                                          printf "\e]51;A$(whoami)@$(hostname):$(pwd)\e\\";
+}
+PS1=$PS1'\[$(vterm_prompt_end)\]'
+
 
 # Put your fun stuff here.
 PATH=$PATH:/home/john/scripts:/home/john/.local/bin
@@ -28,3 +32,12 @@ alias curl-tor="curl --proxy socks5://localhost:9050"
 alias rs="rsync -avzP"
 alias jumpbox-dl="rs jumpbox:/var/lib/transmission/Downloads/* ."
 alias kodi-update="ssh pi-master-tv 'kodi-send --action=\"UpdateLibrary(video)\"'"
+alias pwgen="tr -dc 'A-Za-z0-9!@#$%^&*()_+-={}[]|:;\",.<>?/' < /dev/urandom | head -c 30; echo"
+alias record-audio="ffmpeg -f pulse -i alsa_input.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.mono-fallback out.wav"
+alias danger-claude="claude --dangerously-skip-permissions"
+alias vault=/home/john/packages/vault/bao
+export VAULT_ADDR="http://ifd-vault:8200"
+export VAULT_TOKEN=$(secret-tool lookup vault token)
+export JIRA_BASE_URL="https://infocusdata.atlassian.net"
+export JIRA_CLIENT_ID=$(secret-tool lookup jira client_id)
+export JIRA_CLIENT_SECRET=$(secret-tool lookup jira client_secret)
