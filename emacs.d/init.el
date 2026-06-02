@@ -7,7 +7,7 @@
 (setq custom-file "~/.emacs.d/custom.el")
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-(global-set-key [?\s-t] (lambda () (interactive) (ansi-term "bash")))
+(global-set-key [?\s-t] (lambda () (interactive) (vterm t)))
 (global-set-key (kbd "C-.") 'duplicate-line)
 
 (server-start) ;; needed by sub-modules

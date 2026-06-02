@@ -18,7 +18,7 @@ PS1=$PS1'\[$(vterm_prompt_end)\]'
 
 
 # Put your fun stuff here.
-PATH=$PATH:/home/john/scripts:/home/john/.local/bin
+PATH=$PATH:/home/john/scripts:/home/john/.local/bin:/home/john/packages/vault
 
 alias rm="rm -i"
 alias mv="mv -i"
@@ -35,7 +35,6 @@ alias kodi-update="ssh pi-master-tv 'kodi-send --action=\"UpdateLibrary(video)\"
 alias pwgen="tr -dc 'A-Za-z0-9!@#$%^&*()_+-={}[]|:;\",.<>?/' < /dev/urandom | head -c 30; echo"
 alias record-audio="ffmpeg -f pulse -i alsa_input.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.mono-fallback out.wav"
 alias danger-claude="claude --dangerously-skip-permissions"
-alias vault=/home/john/packages/vault/bao
 export VAULT_ADDR="http://ifd-vault:8200"
 export VAULT_TOKEN=$(secret-tool lookup vault token)
 export JIRA_BASE_URL="https://infocusdata.atlassian.net"
