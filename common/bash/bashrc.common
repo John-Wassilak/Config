@@ -5,6 +5,13 @@ if [[ $- != *i* ]] ; then
     return
 fi
 
+# System-wide aliases/prompt (PS1, ls/grep colors, dircolors on
+# BLFS/LFS hosts). Was unconditional in the pre-restructure ~/.bashrc;
+# dropping it here broke the prompt on hosts/server.
+if [ -f "/etc/bashrc" ] ; then
+    source /etc/bashrc
+fi
+
 # needed by pinentry-curses so gpg-agent can find the terminal
 export GPG_TTY=$(tty)
 
