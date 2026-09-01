@@ -1,6 +1,6 @@
 # Server-only additions, sourced after common/bash/bashrc.common.
 #
-# No secret-tool/keyring on this host, so the VAULT_*/JIRA_CLIENT_*
+# No ~/.password-store on this host, so the VAULT_*/JIRA_CLIENT_*
 # exports that exist on hosts/laptop are deliberately not mirrored here.
 
 export IFD_FLEET_ROOT=/home/john/the-commodore
