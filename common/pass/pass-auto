@@ -1,0 +1,15 @@
+#!/bin/bash
+# Wrapper around pass for the automation-only password store: a separate
+# GPG identity (passphrase-protected, ~/.gnupg-auto, 8h cache ttl) and
+# store (~/.password-store-auto) from the interactive store passff/
+# browserpass use for bank and other sensitive logins. Holds only script/
+# cron-facing secrets (vault token, JIRA client creds, calendar client
+# id/secret) so this store's long cache doesn't loosen caching on
+# anything reachable from the browser. The passphrase is normally entered
+# once at Hyprland login (see hyprland.conf's pass-auto exec-once); if
+# that didn't run, the first pass-auto call of the session prompts
+# instead. Protects the secrets at rest if the drive is lost, while still
+# being effectively unattended for the rest of a normal session.
+export GNUPGHOME="$HOME/.gnupg-auto"
+export PASSWORD_STORE_DIR="$HOME/.password-store-auto"
+exec /usr/bin/pass "$@"

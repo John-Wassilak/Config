@@ -28,6 +28,7 @@ case "$HOST" in
         links["$HOME/.config/mpv"]="$REPO_DIR/hosts/laptop/mpv"
         links["$HOME/.bashrc"]="$REPO_DIR/hosts/laptop/bash/bashrc"
         links["$HOME/.bash_profile"]="$REPO_DIR/hosts/laptop/bash/bash_profile"
+        links["$HOME/.local/bin/pass-auto"]="$REPO_DIR/common/pass/pass-auto"
         ;;
     server)
         links["$HOME/.config/awesome"]="$REPO_DIR/hosts/server/awesome"

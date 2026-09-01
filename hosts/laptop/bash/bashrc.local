@@ -16,10 +16,12 @@ alias jumpbox-dl="rs jumpbox:/var/lib/transmission/Downloads/* ."
 alias kodi-update="ssh pi-master-tv 'kodi-send --action=\"UpdateLibrary(video)\"'"
 alias record-audio="ffmpeg -f pulse -i alsa_input.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.mono-fallback out.wav"
 
-# pass-backed: requires ~/.password-store and a usable gpg-agent, laptop-only for now.
+# pass-auto-backed: unattended automation store (~/.password-store-auto,
+# no-passphrase key in ~/.gnupg-auto), separate from the interactive
+# ~/.password-store passff/browserpass use for bank et al. Laptop-only for now.
 export VAULT_ADDR="http://ifd-vault:8200"
-export VAULT_TOKEN=$(pass show ifd-vault/token)
-export JIRA_CLIENT_ID=$(pass show ifd-jira/client_id)
-export JIRA_CLIENT_SECRET=$(pass show ifd-jira/client_secret)
+export VAULT_TOKEN=$(pass-auto show ifd-vault/token)
+export JIRA_CLIENT_ID=$(pass-auto show ifd-jira/client_id)
+export JIRA_CLIENT_SECRET=$(pass-auto show ifd-jira/client_secret)
 
 export IFD_FLEET_ROOT=/mnt/crypt/john/projects/the-commodore
