@@ -1,0 +1,14 @@
+# Sourced by every host's ~/.bash_profile. Host-specific bits live in
+# hosts/<host>/bash/bash_profile.local, sourced after this file.
+
+if [[ -f ~/.bashrc ]] ; then
+    . ~/.bashrc
+fi
+
+if [ -d "$HOME/.npm-global/bin" ] ; then
+    pathprepend "$HOME/.npm-global/bin"
+fi
+
+if [ -d "$HOME/bin" ] ; then
+    pathprepend "$HOME/bin"
+fi

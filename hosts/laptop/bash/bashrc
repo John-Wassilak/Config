@@ -1,0 +1,5 @@
+# Symlinked to ~/.bashrc by set-links.sh on host 'laptop'.
+
+REPO_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../.." && pwd)"
+source "$REPO_DIR/common/bash/bashrc.common"
+source "$REPO_DIR/hosts/laptop/bash/bashrc.local"

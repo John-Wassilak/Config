@@ -1,0 +1,14 @@
+# Server-only additions, sourced after common/bash/bash_profile.common.
+
+if [ -d "$HOME/Scripts" ] ; then
+    pathprepend "$HOME/Scripts"
+fi
+
+# 'first' login on the physical console: mount the encrypted volume and
+# bring up the firewall before anything else runs.
+if [ -z "${DISPLAY}" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    "$HOME/Scripts/mount-crypt.sh"
+    "$HOME/Scripts/firewall.sh"
+    eval "$(ssh-agent)" > /dev/null
+    ssh-add
+fi

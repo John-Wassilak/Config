@@ -1,0 +1,5 @@
+# Symlinked to ~/.bash_profile by set-links.sh on host 'server'.
+
+REPO_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../.." && pwd)"
+source "$REPO_DIR/common/bash/bash_profile.common"
+source "$REPO_DIR/hosts/server/bash/bash_profile.local"

@@ -1,0 +1,9 @@
+# Laptop-only additions, sourced after common/bash/bash_profile.common.
+
+if [ -d /usr/sbin ] ; then
+    pathappend /usr/sbin
+fi
+
+if [ -d "$HOME/Scripts" ] ; then
+    pathprepend "$HOME/Scripts"
+fi

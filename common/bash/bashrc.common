@@ -1,0 +1,25 @@
+# Sourced by every host's ~/.bashrc. Host-specific env/aliases live in
+# hosts/<host>/bash/bashrc.local, sourced after this file.
+
+if [[ $- != *i* ]] ; then
+    return
+fi
+
+# needed by pinentry-curses so gpg-agent can find the terminal
+export GPG_TTY=$(tty)
+
+alias rm="rm -i"
+alias mv="mv -i"
+alias cp="cp -i"
+alias rs="rsync -avzP"
+alias pwgen="tr -dc 'A-Za-z0-9!@#$%^&*()_+-={}[]|:;\",.<>?/' < /dev/urandom | head -c 30; echo"
+alias danger-claude="claude --dangerously-skip-permissions"
+
+export JIRA_BASE_URL="https://infocusdata.atlassian.net"
+export JIRA_REDIRECT_URI=http://localhost:9876/callback
+
+# ssh-agent: one shared agent per node on a fixed socket; prompts for the key
+# passphrase at interactive shell open only. See common/ssh/agent-bootstrap.sh.
+if [ -r "$HOME/.ssh/agent-bootstrap.sh" ]; then
+    source "$HOME/.ssh/agent-bootstrap.sh"
+fi
