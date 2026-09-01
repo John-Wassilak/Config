@@ -5,9 +5,9 @@ vterm_prompt_end() {
 }
 PS1=$PS1'\[$(vterm_prompt_end)\]'
 
-PATH=$PATH:/home/john/scripts:/home/john/.local/bin:/home/john/packages/vault
+PATH=$PATH:/home/john/Scripts:/home/john/.local/bin:/home/john/packages/vault
 
-alias dl="/home/john/scripts/yt-dlp-wrapper.sh"
+alias dl="/home/john/Scripts/yt-dlp-wrapper.sh"
 alias dl-audio="yt-dlp --format m4a/bestaudio --extract-audio --audio-format mp3"
 alias dl-tor="yt-dlp --proxy socks5://localhost:9050"
 alias dl-jumpbox="yt-dlp --proxy socks5://localhost:9051"
