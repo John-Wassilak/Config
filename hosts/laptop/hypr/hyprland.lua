@@ -167,9 +167,6 @@ hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("pamixer -d 5"),                
 hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("pamixer -t"),                  { locked = true })
 hl.bind("XF86AudioMicMute",     hl.dsp.exec_cmd("pamixer --default-source -m"), { locked = true })
 
--- Gamemode
-hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("~/.config/hypr/gamemode.sh"))
-
 -- Screenshots
 hl.bind(mainMod .. " + PRINT",             hl.dsp.exec_cmd("hyprshot -m window"))
 hl.bind("PRINT",                           hl.dsp.exec_cmd("hyprshot -m output"))
