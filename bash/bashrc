@@ -40,3 +40,5 @@ export VAULT_TOKEN=$(secret-tool lookup vault token)
 export JIRA_BASE_URL="https://infocusdata.atlassian.net"
 export JIRA_CLIENT_ID=$(secret-tool lookup jira client_id)
 export JIRA_CLIENT_SECRET=$(secret-tool lookup jira client_secret)
+export JIRA_REDIRECT_URI=http://localhost:9876/callback
+export IFD_FLEET_ROOT=/mnt/crypt/john/projects/the-commodore

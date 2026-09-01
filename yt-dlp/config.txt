@@ -11,4 +11,4 @@
 -S "vcodec:h264,fps:30"
 
 # Simplify selection to handle your language and resolution fallback
--f "137+140[language=en]/bestvideo[language=en]+bestaudio[language=en]/best"
+-f "137+140[language=en]/bestvideo[language=en]+bestaudio[language=en]/bestvideo+bestaudio/best"

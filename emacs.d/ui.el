@@ -57,6 +57,8 @@
 
 (rc/require 'treemacs)
 
+(rc/require 'vterm)
+
 ;; spelling
 (rc/require 'jinx)
 (dolist (hook '(text-mode-hook prog-mode-hook conf-mode-hook))

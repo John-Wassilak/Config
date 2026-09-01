@@ -74,6 +74,14 @@
     (async-shell-command (format "%s %s %s && mpv %s ; rm -rfv %s" yt-dlp format url file_name file_name) (messages-buffer))))
 
 
+;; ssh into `server` and attach/create a screen session of the same name
+(defun server-session (name)
+  "Open a vterm buffer ss-NAME running an SSH screen session NAME on `server'."
+  (interactive "sSession name: ")
+  (let ((vterm-shell (format "ssh -t server screen -dRR -S %s" (shell-quote-argument name))))
+    (vterm (concat "ss-" name))))
+(global-set-key (kbd "C-c s") 'server-session)
+
 ;; bluetooth headset...
 (defun bt-disconnect ()
   (interactive)

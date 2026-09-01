@@ -9,12 +9,14 @@ require("dms/windowrules")
 --------------------
 
 hl.monitor({ output = "DP-5",  mode = "1440x900@59.887",  position = "1120x0",    scale = 1, vrr = 0 })
-hl.monitor({ output = "DP-8",  mode = "1440x900@59.887",  position = "1876x427",  scale = 1, vrr = 0 })
-hl.monitor({ output = "DP-7",  mode = "1440x900@59.887",  position = "1876x514",  scale = 1, vrr = 0 })
-hl.monitor({ output = "DP-6",  mode = "1440x900@59.887",  position = "3316x694",  scale = 1, vrr = 0 })
+--hl.monitor({ output = "DP-8",  mode = "1440x900@59.887",  position = "1876x427",  scale = 1, vrr = 0 })
+--hl.monitor({ output = "DP-7",  mode = "1440x900@59.887",  position = "1876x514",  scale = 1, vrr = 0 })
+--hl.monitor({ output = "DP-6",  mode = "1440x900@59.887",  position = "3316x694",  scale = 1, vrr = 0 })
 hl.monitor({ output = "DP-3",  mode = "1360x768@60.015",  position = "2560x594",  scale = 1, vrr = 0 })
-hl.monitor({ output = "DP-4",  mode = "1360x768@60.015",  position = "3316x949",  scale = 1, vrr = 0 })
+--hl.monitor({ output = "DP-4",  mode = "1360x768@60.015",  position = "3316x949",  scale = 1, vrr = 0 })
 hl.monitor({ output = "eDP-1", disabled = true })
+--hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 2 })
+--hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto" })
 
 
 -------------------------------
@@ -46,8 +48,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("dbus-update-activation-environment DISPLAY I3SOCK SWAYSOCK WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=Hyprland")
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
     hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
-    hl.exec_cmd("systemctl --user restart xdg-desktop-portal.service")
-    hl.exec_cmd("sleep 1 && /usr/libexec/xdg-desktop-portal-hyprland")
+    hl.exec_cmd("systemctl --user restart xdg-desktop-portal.service xdg-desktop-portal-hyprland.service")
 end)
 
 
@@ -173,3 +174,5 @@ hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd("~/.config/hypr/gamemode.sh")
 hl.bind(mainMod .. " + PRINT",             hl.dsp.exec_cmd("hyprshot -m window"))
 hl.bind("PRINT",                           hl.dsp.exec_cmd("hyprshot -m output"))
 hl.bind(mainMod .. " + SHIFT + PRINT",     hl.dsp.exec_cmd("hyprshot -m region"))
+
+require("dms.outputs")
