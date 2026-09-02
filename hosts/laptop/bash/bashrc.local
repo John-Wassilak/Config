@@ -28,7 +28,13 @@ alias record-audio="ffmpeg -f pulse -i alsa_input.usb-C-Media_Electronics_Inc._U
 # common/pass/vault-wrapper) shadowing the real binaries in
 # /home/john/packages/vault. gpg-agent's own cache (8h) is what avoids
 # re-prompting on repeat calls, not anything in this file.
-export JIRA_CLIENT_ID=$(pass-auto show ifd-jira/client_id)
-export JIRA_CLIENT_SECRET=$(pass-auto show ifd-jira/client_secret)
+#
+# JIRA_CLIENT_ID/SECRET had the same problem and no binary to shadow --
+# jira-trait skills read the vars directly, there's no CLI in the loop.
+# Load on demand instead of at shell start:
+jira-env() {
+    export JIRA_CLIENT_ID=$(pass-auto show ifd-jira/client_id)
+    export JIRA_CLIENT_SECRET=$(pass-auto show ifd-jira/client_secret)
+}
 
 export IFD_FLEET_ROOT=/mnt/crypt/john/projects/the-commodore
