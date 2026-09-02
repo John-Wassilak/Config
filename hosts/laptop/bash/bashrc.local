@@ -17,10 +17,17 @@ alias kodi-update="ssh pi-master-tv 'kodi-send --action=\"UpdateLibrary(video)\"
 alias record-audio="ffmpeg -f pulse -i alsa_input.usb-C-Media_Electronics_Inc._USB_Audio_Device-00.mono-fallback out.wav"
 
 # pass-auto-backed: unattended automation store (~/.password-store-auto,
-# no-passphrase key in ~/.gnupg-auto), separate from the interactive
-# ~/.password-store passff/browserpass use for bank et al. Laptop-only for now.
-export VAULT_ADDR="http://ifd-vault:8200"
-export VAULT_TOKEN=$(pass-auto show ifd-vault/token)
+# passphrase-protected key in ~/.gnupg-auto, primed at Hyprland login),
+# separate from the interactive ~/.password-store passff/browserpass use
+# for bank et al. Laptop-only for now.
+#
+# VAULT_TOKEN/VAULT_ADDR used to be exported here on every shell open,
+# which also meant every Claude Code Bash subprocess inherited the vault
+# token whether or not it ever touched vault. That's now resolved lazily,
+# at call time, by ~/.local/bin/vault and ~/.local/bin/bao (see
+# common/pass/vault-wrapper) shadowing the real binaries in
+# /home/john/packages/vault. gpg-agent's own cache (8h) is what avoids
+# re-prompting on repeat calls, not anything in this file.
 export JIRA_CLIENT_ID=$(pass-auto show ifd-jira/client_id)
 export JIRA_CLIENT_SECRET=$(pass-auto show ifd-jira/client_secret)
 

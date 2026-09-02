@@ -1,0 +1,20 @@
+#!/bin/bash
+# Lazy VAULT_TOKEN shim. Symlinked as both ~/.local/bin/vault and
+# ~/.local/bin/bao, which shadow /home/john/packages/vault/{vault,bao} on
+# PATH (.local/bin comes first). Resolves the token from the pass-auto
+# store at call time instead of bashrc.local exporting it into every shell
+# --- and therefore into every Claude Code Bash subprocess --- whether or
+# not that session ever touches vault.
+#
+# No TTL logic lives here on purpose: pass-auto's own gpg-agent cache (8h,
+# primed by the pass-auto exec-once in hyprland.conf) is what avoids
+# re-prompting. This just moves the pass-auto call from shell-start to
+# call-time so the token/passphrase pinentry only appears if this shim
+# actually runs and the agent's cache has expired.
+set -euo pipefail
+
+REAL="/home/john/packages/vault/$(basename "$0")"
+export VAULT_ADDR="${VAULT_ADDR:-http://ifd-vault:8200}"
+export VAULT_TOKEN="$(/home/john/.local/bin/pass-auto show ifd-vault/token)"
+
+exec "$REAL" "$@"
