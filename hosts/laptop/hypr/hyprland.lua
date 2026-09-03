@@ -116,14 +116,13 @@ local mainMod = "SUPER"
 hl.bind(mainMod .. " + Return",       hl.dsp.exec_cmd("alacritty"))
 hl.bind(mainMod .. " + Q",            hl.dsp.window.close())
 hl.bind(mainMod .. " + M",            hl.dsp.exit())
-hl.bind(mainMod .. " + E",            hl.dsp.exec_cmd("dolphin"))
 hl.bind(mainMod .. " + V",            hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + D",            hl.dsp.exec_cmd("wofi --show drun"))
 hl.bind(mainMod .. " + P",            hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J",            hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + F",            hl.dsp.window.fullscreen())
 hl.bind(mainMod .. " + SHIFT + B",    hl.dsp.exec_cmd("firefox"))
-hl.bind(mainMod .. " + B",            hl.dsp.exec_cmd("chromium --incognito"))
+hl.bind(mainMod .. " + B",            hl.dsp.exec_cmd("firefox"))
 
 -- Focus
 hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
