@@ -46,7 +46,7 @@
 (add-to-list 'display-buffer-alist
              (cons "\\*Messages\\*.*" (cons #'display-buffer-no-window nil)))
 
-(setq yt-dlp-base-command "/home/john/packages/yt-dlp/yt-dlp.sh --sub-lang en --write-auto-sub --embed-sub")
+(setq yt-dlp-base-command "yt-dlp --sub-lang en --write-auto-sub --embed-sub")
 
 ;; dl url to typical vid folder
 (defun dl-local (url)
@@ -62,7 +62,7 @@
 
 (defun stream (url)
   (interactive "sURL: ")
-  (async-shell-command (format "/mnt/crypt/john/yt-dlp/yt-dlp.sh %s -o - | mpv -" url)
+  (async-shell-command (format "yt-dlp %s -o - | mpv -" url)
                        (messages-buffer)))
 
 
