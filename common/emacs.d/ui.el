@@ -33,7 +33,7 @@
 (display-battery-mode 1)
 (doom-modeline-mode 1)
 
-(set-face-attribute 'default nil :font "JetBrains Mono" :weight 'demibold)
+(set-face-attribute 'default nil :font "DejaVu Sans Mono" :weight 'normal)
 
 (rc/require 'rainbow-delimiters)
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
