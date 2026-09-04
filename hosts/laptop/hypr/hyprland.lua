@@ -40,6 +40,16 @@ hl.env("QT_AUTO_SCREEN_SCALE_FACTOR",     "1")
 -------------------
 
 hl.on("hyprland.start", function()
+    -- gnome-keyring-daemon: pinentry-gnome3's actual pin prompt is
+    -- org.gnome.keyring.SystemPrompter, D-Bus-activated on demand via
+    -- gcr-prompter (gcr-3's own binary, /usr/libexec/gcr-prompter) --
+    -- that part needs no daemon running ahead of time. This line is for
+    -- the *other* two components in the same binary: secrets (the Secret
+    -- Service API apps use to store arbitrary passwords) and pkcs11.
+    -- --components matches this build's own systemd --user unit
+    -- (/usr/lib/systemd/user/gnome-keyring-daemon.service); ssh is left
+    -- out since gnome-keyring wasn't built with ssh-agent support here.
+    hl.exec_cmd("gnome-keyring-daemon --start --components=pkcs11,secrets")
     hl.exec_cmd("swayidle -w timeout 600 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on'")
     hl.exec_cmd("dms run")
     hl.exec_cmd("wlsunset -l 35.46 -L -97.32")

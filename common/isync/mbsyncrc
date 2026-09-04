@@ -3,7 +3,7 @@ Host imap.gmail.com
 User cobus.jjimjilbang@gmail.com
 PassCmd "emacsclient -e \"(my/lookup-password :host \\\"gmail.com\\\" :user \\\"cobus.jjimjilbang@gmail.com\\\")\" | cut -d '\"' -f2"
 TLSType IMAPS
-CertificateFile /etc/ssl/certs/ca-certificates.crt
+CertificateFile /etc/pki/tls/certs/ca-bundle.crt
 
 IMAPStore gmail-cobus-remote
 Account gmail-cobus
@@ -29,7 +29,7 @@ Host imap.gmail.com
 User john@infocusdata.com
 PassCmd "emacsclient -e \"(my/lookup-password :host \\\"gmail.com\\\" :user \\\"john@infocusdata.com\\\")\" | cut -d '\"' -f2"
 TLSType IMAPS
-CertificateFile /etc/ssl/certs/ca-certificates.crt
+CertificateFile /etc/pki/tls/certs/ca-bundle.crt
 
 IMAPStore infocus-remote
 Account infocus
@@ -55,7 +55,7 @@ Host imap.fatcow.com
 User john@wassilak.com
 PassCmd "emacsclient -e \"(my/lookup-password :host \\\"fatcow.com\\\" :user \\\"john@wassilak.com\\\")\" | cut -d '\"' -f2"
 TLSType IMAPS
-CertificateFile /etc/ssl/certs/ca-certificates.crt
+CertificateFile /etc/pki/tls/certs/ca-bundle.crt
 
 IMAPStore fatcow-john-remote
 Account fatcow-john
@@ -81,7 +81,7 @@ Host imap.fatcow.com
 User consulting@wassilak.com
 PassCmd "emacsclient -e \"(my/lookup-password :host \\\"fatcow.com\\\" :user \\\"consulting@wassilak.com\\\")\" | cut -d '\"' -f2"
 TLSType IMAPS
-CertificateFile /etc/ssl/certs/ca-certificates.crt
+CertificateFile /etc/pki/tls/certs/ca-bundle.crt
 
 IMAPStore fatcow-consulting-remote
 Account fatcow-consulting
@@ -107,7 +107,7 @@ Host imap.fatcow.com
 User jwassilak@wassilak.com
 PassCmd "emacsclient -e \"(my/lookup-password :host \\\"fatcow.com\\\" :user \\\"jwassilak@wassilak.com\\\")\" | cut -d '\"' -f2"
 TLSType IMAPS
-CertificateFile /etc/ssl/certs/ca-certificates.crt
+CertificateFile /etc/pki/tls/certs/ca-bundle.crt
 
 IMAPStore fatcow-jwassilak-remote
 Account fatcow-jwassilak

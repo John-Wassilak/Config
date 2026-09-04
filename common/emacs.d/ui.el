@@ -33,6 +33,26 @@
 (display-battery-mode 1)
 (doom-modeline-mode 1)
 
+;; A `quit' (C-g) landing inside a repeating timer's callback unwinds past
+;; the reschedule step, silently killing that timer forever while the
+;; owning mode still reports itself enabled. display-time-mode and
+;; display-battery-mode have both died this way (their timers fire back to
+;; back), freezing the modeline clock/battery with no error message.
+;; Periodically check they're still actually scheduled and restart the
+;; mode if not.
+(defun rc/revive-dead-mode-timer (mode-var timer-fn)
+  (when (and (symbol-value mode-var)
+             (not (seq-find (lambda (tm) (eq (timer--function tm) timer-fn))
+                             timer-list)))
+    (funcall mode-var -1)
+    (funcall mode-var 1)))
+
+(defun rc/revive-modeline-timers ()
+  (rc/revive-dead-mode-timer 'display-time-mode 'display-time-event-handler)
+  (rc/revive-dead-mode-timer 'display-battery-mode 'battery-update-handler))
+
+(run-with-timer 300 300 #'rc/revive-modeline-timers)
+
 (set-face-attribute 'default nil :font "DejaVu Sans Mono" :weight 'normal)
 ;; DejaVu Sans Mono has gaps in Misc Technical (e.g. U+23BF, used by
 ;; Claude Code's tree-connector glyphs) that no other installed font
