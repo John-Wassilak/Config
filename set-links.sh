@@ -26,6 +26,7 @@ case "$HOST" in
         links["$HOME/.config/wofi"]="$REPO_DIR/hosts/laptop/wofi"
         links["$HOME/.config/DankMaterialShell"]="$REPO_DIR/hosts/laptop/DankMaterialShell"
         links["$HOME/.config/mpv"]="$REPO_DIR/hosts/laptop/mpv"
+        links["$HOME/.local/share/applications/firefox.desktop"]="$REPO_DIR/hosts/laptop/applications/firefox.desktop"
         links["$HOME/.bashrc"]="$REPO_DIR/hosts/laptop/bash/bashrc"
         links["$HOME/.bash_profile"]="$REPO_DIR/hosts/laptop/bash/bash_profile"
         links["$HOME/.local/bin/pass-auto"]="$REPO_DIR/common/pass/pass-auto"

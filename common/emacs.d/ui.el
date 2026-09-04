@@ -34,6 +34,10 @@
 (doom-modeline-mode 1)
 
 (set-face-attribute 'default nil :font "DejaVu Sans Mono" :weight 'normal)
+;; DejaVu Sans Mono has gaps in Misc Technical (e.g. U+23BF, used by
+;; Claude Code's tree-connector glyphs) that no other installed font
+;; covers either; Unifont fills those in as an explicit fallback.
+(set-fontset-font t nil (font-spec :name "Unifont") nil 'append)
 
 (rc/require 'rainbow-delimiters)
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)

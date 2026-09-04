@@ -130,8 +130,8 @@ hl.bind(mainMod .. " + D",            hl.dsp.exec_cmd("wofi --show drun"))
 hl.bind(mainMod .. " + P",            hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J",            hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + F",            hl.dsp.window.fullscreen())
-hl.bind(mainMod .. " + SHIFT + B",    hl.dsp.exec_cmd("firefox"))
-hl.bind(mainMod .. " + B",            hl.dsp.exec_cmd("firefox"))
+hl.bind(mainMod .. " + SHIFT + B",    hl.dsp.exec_cmd("env GTK_CSD=0 firefox"))
+hl.bind(mainMod .. " + B",            hl.dsp.exec_cmd("env GTK_CSD=0 firefox"))
 
 -- Focus
 hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
