@@ -25,6 +25,11 @@
 (setopt display-time-default-load-average nil)
 (setopt doom-modeline-time-icon nil)
 (display-time-mode 1)
+;; upower.service is broken on this box (217/USER), so battery-upower blocks
+;; ~25s on a D-Bus activation timeout and then returns empty fields, which
+;; crashes doom-modeline-update-battery-status. Read /sys directly instead.
+(require 'battery)
+(setopt battery-status-function #'battery-linux-sysfs)
 (display-battery-mode 1)
 (doom-modeline-mode 1)
 
