@@ -3,7 +3,7 @@ Encoding=UTF-8
 Name=Firefox Web Browser
 Comment=Browse the World Wide Web
 GenericName=Web Browser
-Exec=env GTK_CSD=0 firefox %u
+Exec=env GTK_CSD=0 GDK_BACKEND=x11 MOZ_ENABLE_WAYLAND= /usr/lib/firefox/firefox %u
 Terminal=false
 Type=Application
 Icon=firefox
