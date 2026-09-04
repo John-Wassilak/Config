@@ -7,3 +7,15 @@ fi
 if [ -d "$HOME/Scripts" ] ; then
     pathprepend "$HOME/Scripts"
 fi
+
+# Unlock/mount /mnt/crypt at console login, before Hyprland starts. The LUKS
+# passphrase has to be typed, so this needs a tty -- an exec-once in
+# hyprland.lua has none and would fail silently. Console login shells only:
+# ssh and the nested shells terminals start are skipped by the tty test.
+case "$(tty)" in
+    /dev/tty[0-9]*)
+        if [ -z "${SSH_CONNECTION:-}" ]; then
+            "$HOME/Scripts/mount-crypt.sh"
+        fi
+        ;;
+esac
