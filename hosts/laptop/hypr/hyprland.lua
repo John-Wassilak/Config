@@ -48,7 +48,16 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("dbus-update-activation-environment DISPLAY I3SOCK SWAYSOCK WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=Hyprland")
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
     hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+    -- No-op on this box as it stands: there are no xdg-desktop-portal user
+    -- units and no xdg-desktop-portal-hyprland binary installed. Left in
+    -- place for whenever the portal gets built.
     hl.exec_cmd("systemctl --user restart xdg-desktop-portal.service xdg-desktop-portal-hyprland.service")
+    hl.exec_cmd("sleep 1 && /usr/libexec/xdg-desktop-portal-hyprland &")
+
+    -- prime the automation pass store's passphrase cache once at login (8h
+    -- ttl, see ~/.gnupg-auto/gpg-agent.conf) so scripts/cron never prompt
+    -- afterward
+    hl.exec_cmd("/home/john/.local/bin/pass-auto show ifd-vault/token >/dev/null 2>&1")
 end)
 
 

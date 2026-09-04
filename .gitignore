@@ -1,3 +1,7 @@
 hosts/laptop/waybar/scripts/__pycache__/
 common/yt-dlp/plugins/
 *token*
+
+# Hyprland auto-regenerates this stub whenever hyprland.lua is present
+# beside it; hyprland.lua is the real config.
+hosts/laptop/hypr/hyprland.conf
