@@ -12,6 +12,16 @@ if [ -f "/etc/bashrc" ] ; then
     source /etc/bashrc
 fi
 
+# Same prompt shape /etc/bashrc sets, with the host added: "john@laptop [ ~ ]$".
+# Set after that source so it wins, and before bashrc.local so the laptop's
+# vterm_prompt_end still appends cleanly. Every host gets it -- laptop and
+# server prompts were indistinguishable over ssh.
+if [[ $EUID == 0 ]] ; then
+    PS1="\[\e[1;31m\]\u@\h [ \[\e[0m\]\w\[\e[1;31m\] ]# \[\e[0m\]"
+else
+    PS1="\[\e[1;32m\]\u@\h [ \[\e[0m\]\w\[\e[1;32m\] ]\$ \[\e[0m\]"
+fi
+
 # needed by pinentry-curses so gpg-agent can find the terminal
 export GPG_TTY=$(tty)
 
