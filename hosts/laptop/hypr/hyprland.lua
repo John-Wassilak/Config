@@ -7,12 +7,11 @@ require("dms/windowrules")
 ---- WINDOW RULES ----
 --------------------
 
--- Emacs slight transparency -- carried over from a prior system's Hyprland
--- config (found in old_home's hyprland.conf: `windowrule = match:class
--- ^(emacs)$, opacity 0.90 0.90`); this build's real live class is "Emacs"
--- (capitalized, confirmed via `hyprctl clients`), not the lowercase the old
--- config used.
-hl.window_rule({ name = "emacs-opacity", match = { class = "^(Emacs)$" }, opacity = "0.90 0.90" })
+-- Emacs slight transparency. Class casing has flipped between Emacs builds
+-- (was "Emacs", now back to lowercase "emacs" per `hyprctl clients` on
+-- 2026-09-05) so match case-insensitively to survive the next flip too.
+hl.window_rule({ name = "emacs-opacity", match = { class = "^(?i)(emacs)$" }, opacity = "0.90 0.90" })
+hl.window_rule({ name = "slack-opacity", match = { class = "^(?i)(slack)$" }, opacity = "0.90 0.90" })
 
 
 --------------------
