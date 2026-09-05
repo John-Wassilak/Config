@@ -3,6 +3,17 @@
 require("dms/cursor")
 require("dms/windowrules")
 
+--------------------
+---- WINDOW RULES ----
+--------------------
+
+-- Emacs slight transparency -- carried over from a prior system's Hyprland
+-- config (found in old_home's hyprland.conf: `windowrule = match:class
+-- ^(emacs)$, opacity 0.90 0.90`); this build's real live class is "Emacs"
+-- (capitalized, confirmed via `hyprctl clients`), not the lowercase the old
+-- config used.
+hl.window_rule({ name = "emacs-opacity", match = { class = "^(Emacs)$" }, opacity = "0.90 0.90" })
+
 
 --------------------
 ---- MONITORS ----
@@ -191,3 +202,4 @@ hl.bind("PRINT",                           hl.dsp.exec_cmd("hyprshot -m output")
 hl.bind(mainMod .. " + SHIFT + PRINT",     hl.dsp.exec_cmd("hyprshot -m region"))
 
 require("dms.outputs")
+require("dms.layout")
