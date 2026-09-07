@@ -69,11 +69,17 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("dbus-update-activation-environment DISPLAY I3SOCK SWAYSOCK WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=Hyprland")
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
     hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
-    -- No-op on this box as it stands: there are no xdg-desktop-portal user
-    -- units and no xdg-desktop-portal-hyprland binary installed. Left in
-    -- place for whenever the portal gets built.
+    -- Live since 2026-09-07: xdg-desktop-portal 1.20.3 + -gtk + -hyprland
+    -- 1.4.1 are built (agent-built-lfs seq 314-318), which is what makes
+    -- Wayland screen sharing work in Firefox/Meet and Slack. The restart is
+    -- here because both units are D-Bus activated and inherit the session
+    -- environment set by the three lines above -- restarting them after
+    -- dbus-update-activation-environment is what guarantees XDPH sees
+    -- WAYLAND_DISPLAY/XDG_CURRENT_DESKTOP. Do not add a manual
+    -- `/usr/libexec/xdg-desktop-portal-hyprland &` alongside it: a second
+    -- instance cannot take the bus name and dies with
+    -- "[CRITICAL] Couldn't create the dbus connection ... File exists".
     hl.exec_cmd("systemctl --user restart xdg-desktop-portal.service xdg-desktop-portal-hyprland.service")
-    hl.exec_cmd("sleep 1 && /usr/libexec/xdg-desktop-portal-hyprland &")
 
     -- prime the automation pass store's passphrase cache once at login (8h
     -- ttl, see ~/.gnupg-auto/gpg-agent.conf) so scripts/cron never prompt
