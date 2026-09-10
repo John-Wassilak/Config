@@ -11,14 +11,16 @@
 (require 'xml)
 
 ;; Must match the `login' field of the matching ~/.authinfo.gpg line.
-(defvar my/irc-nick "ding0")
+(defvar my/irc-nick nil)
+(setq my/irc-nick "ding0")
 
 ;; Libera advertises SASL (sasl=...PLAIN... in its CAP LS); 2600net does
 ;; not advertise the sasl cap at all, so it gets NickServ instead. Both
 ;; take TLS on 6697.
-(defvar my/irc-networks
-  '((:server "irc.libera.chat" :port 6697 :sasl t   :id irc:Libera.Chat)
-    (:server "irc.2600.net"    :port 6697 :sasl nil :id irc:2600net)))
+(defvar my/irc-networks nil)
+(setq my/irc-networks
+      '((:server "irc.libera.chat" :port 6697 :sasl t   :id irc:Libera.Chat)
+        (:server "irc.2600.net"    :port 6697 :sasl nil :id irc:2600net)))
 
 ;; Keyed on the `:id' above rather than the network name: a connection
 ;; opened with an `:id' is looked up by it (`erc-autojoin-server-match').
