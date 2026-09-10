@@ -13,7 +13,7 @@
   "runningAppsCurrentWorkspace": false,
   "appIdSubstitutions": [],
   "dankLauncherV2UnloadOnClose": true,
-  "networkPreference": "ethernet",
+  "networkPreference": "wifi",
   "cursorSettings": {
     "theme": "Bibata-Modern-Ice",
     "size": 24,

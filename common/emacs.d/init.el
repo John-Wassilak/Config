@@ -23,4 +23,5 @@
   (load-file (expand-file-name "development.el" here))
   (load-file (expand-file-name "rss.el" here))
   (load-file (expand-file-name "file.el" here))
-  (load-file (expand-file-name "email.el" here)))
+  (load-file (expand-file-name "email.el" here))
+  (load-file (expand-file-name "irc.el" here)))

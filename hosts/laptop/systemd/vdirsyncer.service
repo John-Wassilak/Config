@@ -1,0 +1,9 @@
+[Unit]
+Description=vdirsyncer sync — Google Calendar <-> ~/calendars
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/vdirsyncer sync
+TimeoutStartSec=4min
