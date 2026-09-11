@@ -1,9 +1,35 @@
+# User-level override of /usr/share/applications/firefox.desktop.
+#
+# Reason this file exists at all (2026-09-11): the previous copy here read
+#   Exec=env GTK_CSD=0 GDK_BACKEND=x11 MOZ_ENABLE_WAYLAND= /usr/lib/firefox/firefox %u
+# which forced Firefox onto XWayland and blanked the MOZ_ENABLE_WAYLAND=1 that
+# hyprland.lua already exports session-wide. mimeapps.list sends every
+# http/https/html association to firefox.desktop, and a copy in
+# ~/.local/share/applications shadows the one in /usr/share/applications, so
+# every link opened from another application -- Slack, a mail client, anything
+# going through xdg-open -- got the X11 environment, while typing `firefox` in a
+# shell got the session default and came up as a native Wayland client. Same
+# browser, two different graphics stacks depending on who launched it.
+#
+# The Exec below pins Wayland explicitly rather than relying on inheriting it,
+# so the answer no longer depends on the launcher's environment.
+#
+# GTK_CSD=0 is deliberately NOT carried over. It belonged with the X11 choice
+# (it tells GTK to skip client-side decorations and let the window manager draw
+# them). Under Wayland, Hyprland draws the border itself and Firefox handles its
+# own titlebar, and forcing CSD off there is a known way to end up with a window
+# that has neither. Put it back only if something actually looks wrong.
+#
+# Two leftover "Custom definition for Firefox" entries, userapp-Firefox-DU5YU3
+# and userapp-Firefox-T98QU3, forced X11 the same way. Nothing referenced them
+# and both were NoDisplay=true. Moved to disabled-2026-09-11/ alongside the
+# original of this file.
 [Desktop Entry]
 Encoding=UTF-8
 Name=Firefox Web Browser
 Comment=Browse the World Wide Web
 GenericName=Web Browser
-Exec=env GTK_CSD=0 GDK_BACKEND=x11 MOZ_ENABLE_WAYLAND= /usr/lib/firefox/firefox %u
+Exec=env MOZ_ENABLE_WAYLAND=1 firefox %u
 Terminal=false
 Type=Application
 Icon=firefox
