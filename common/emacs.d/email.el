@@ -152,10 +152,57 @@
 
 ;; setup notification-daemon alerts
 (rc/require 'mu4e-alert)
-(mu4e-alert-set-default-style 'notifications)
+(require 'alert)
+(require 'notifications)
+(require 'xml)
+
 (mu4e-alert-enable-notifications)
 (mu4e-alert-disable-mode-line-display)
 (setq mu4e-alert-email-notification-types '(subjects))
+
+;; `alert''s stock `notifications' style hangs its click action off
+;; `(switch-to-buffer (plist-get info :buffer))', and `:buffer' defaults to
+;; whatever happened to be current when `alert' ran. mu4e-alert notifies
+;; from the mu4e server's process filter, so that is an arbitrary buffer --
+;; never a mu4e one -- which is why clicking the notification did nothing.
+;; Deliver the notification ourselves and resolve the target at click time,
+;; the way irc.el does.
+
+(defvar my/mu4e--notification-ids (make-hash-table :test #'equal)
+  "Notification title -> last notification id, so repeated mail from one
+sender replaces its own notification instead of stacking up a new one.")
+
+(defun my/mu4e-show-unread ()
+  "Focus Emacs and run `mu4e-alert-interesting-mail-query'."
+  (select-frame-set-input-focus
+   (or (car (filtered-frame-list #'frame-visible-p)) (selected-frame)))
+  (mu4e-search mu4e-alert-interesting-mail-query))
+
+(defun my/mu4e-alert-notify (info)
+  "Show INFO, an `alert' plist, as a notification that opens mu4e."
+  (let ((key (or (plist-get info :title) "mu4e")))
+    (ignore-errors
+      (puthash key
+               (notifications-notify
+                ;; No `:desktop-entry': the app name is what the shell
+                ;; groups on, so mail stays in its own group rather than
+                ;; merging with ERC under a shared `emacs' entry.
+                :app-name "mu4e"
+                :title (xml-escape-string (or (plist-get info :title) "") t)
+                :body (xml-escape-string (or (plist-get info :message) "") t)
+                :app-icon (plist-get info :icon)
+                :replaces-id (gethash key my/mu4e--notification-ids)
+                :actions '("default" "Open in mu4e")
+                :on-action (lambda (&rest _) (my/mu4e-show-unread)))
+               my/mu4e--notification-ids))))
+
+(alert-define-style 'my/mu4e-notifications
+                    :title "Desktop notification that opens mu4e when clicked"
+                    :notifier #'my/mu4e-alert-notify)
+
+;; Prepends an `alert' rule for the mu4e-alert category; the newest
+;; matching rule fires and stops, so this supersedes any earlier style.
+(mu4e-alert-set-default-style 'my/mu4e-notifications)
 
 (setq mu4e-alert-interesting-mail-query "flag:unread AND NOT flag:trashed AND NOT maildir:/.*Trash.*/ AND NOT maildir:/.*Spam.*/ AND NOT maildir:/.*Junk.*/ AND NOT maildir:/.*Sent.*/ AND NOT maildir:/.*Drafts.*/ AND NOT maildir:/.*All.*/ AND date:1h..now")
 

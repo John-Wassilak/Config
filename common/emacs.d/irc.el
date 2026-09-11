@@ -72,13 +72,45 @@
 (setopt erc-kill-queries-on-quit t)
 (setopt erc-kill-server-buffer-on-quit t)
 
-;; Keep the modeline's activity indicator to actual conversation. Set
-;; `erc-hide-list' instead if these should also stop being inserted
-;; into the channel buffers themselves.
+;; Keep the modeline's activity indicator to actual conversation.
 (setopt erc-track-exclude-types
         '("JOIN" "PART" "QUIT" "NICK" "MODE" "AWAY" "TOPIC"
           "301" "305" "306" "324" "329" "332" "333" "353" "477"))
 (setopt erc-track-exclude-server-buffer t)
+
+;; And keep the buffers themselves to conversation too. Unlike
+;; `erc-track-exclude-types' above, which only quiets the modeline, these
+;; types are dropped before insertion (`erc-display-message' skips the
+;; insert entirely when `erc-hide-current-message-p' says so), so they
+;; cost no buffer at all.
+;;
+;; 324 RPL_CHANNELMODEIS, 329 RPL_CREATIONTIME, 333 RPL_TOPICWHOTIME and
+;; 353 RPL_NAMEREPLY are the burst a server sends on every join; 301/305/
+;; 306 are away notices. 332 RPL_TOPIC (the topic text) and 477 ("you
+;; must be identified to join") stay visible -- the first is worth
+;; reading once per join, the second is an error we need to see.
+;;
+;; Server PING/PONG is already silent: `erc-server-PING' only displays
+;; when `erc-verbose-server-ping' is non-nil, which it isn't by default,
+;; and it would land in the server buffer regardless.
+(setopt erc-hide-list
+        '("JOIN" "PART" "QUIT" "NICK" "MODE" "AWAY"
+          "301" "305" "306" "324" "329" "333" "353"))
+
+;; For a softer version, drop the JOIN/PART/QUIT entries from
+;; `erc-hide-list' and use these instead: they hide comings and goings
+;; only for nicks that have not said anything in
+;; `erc-lurker-threshold-time' (24h), so people we're actually talking
+;; with stay visible. `erc-lurker-initialize' has no caller anywhere in
+;; ERC itself -- without this call `erc-lurker-state' stays nil and every
+;; nick reads as a lurker.
+;;
+;;   (setopt erc-lurker-hide-list '("JOIN" "PART" "QUIT"))
+;;   (erc-lurker-initialize)
+;;
+;; `erc-network-hide-list' and `erc-channel-hide-list' take the same
+;; message types scoped to one network or one channel, if some noisy
+;; channel needs more hushing than the rest.
 
 
 ;;; --- buffer names -------------------------------------------------
