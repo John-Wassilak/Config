@@ -58,6 +58,12 @@
 ;; Claude Code's tree-connector glyphs) that no other installed font
 ;; covers either; Unifont fills those in as an explicit fallback.
 (set-fontset-font t nil (font-spec :name "Unifont") nil 'append)
+;; Emoji: DejaVu/Unifont only cover a monochrome subset, so point the
+;; `emoji' script at Noto Color Emoji explicitly (prepend, to win over
+;; the catch-all fallback above). Requires the font installed under
+;; ~/.local/share/fonts; this Emacs is built with Cairo + Harfbuzz, which
+;; is what renders the CBDT bitmap glyphs in color.
+(set-fontset-font t 'emoji (font-spec :family "Noto Color Emoji") nil 'prepend)
 
 (rc/require 'rainbow-delimiters)
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
