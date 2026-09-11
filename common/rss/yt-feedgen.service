@@ -1,0 +1,12 @@
+[Unit]
+Description=yt-feedgen — build local Atom feeds for YouTube channels via yt-dlp
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/yt-feedgen
+# A first run seeds every channel from scratch; steady-state runs are
+# roughly one yt-dlp call per channel.
+TimeoutStartSec=2h
+Nice=10

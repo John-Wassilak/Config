@@ -16,6 +16,7 @@ declare -A links=(
     ["$HOME/.bash_logout"]="$REPO_DIR/common/bash/bash_logout"
     ["$HOME/.ssh/agent-bootstrap.sh"]="$REPO_DIR/common/ssh/agent-bootstrap.sh"
     ["$HOME/.config/gtk-3.0"]="$REPO_DIR/common/gtk-3.0"
+    ["$HOME/.local/bin/yt-feedgen"]="$REPO_DIR/common/rss/yt-feedgen"
 )
 
 # Host-specific additions. Add a case below (and a hosts/<name>/ dir)

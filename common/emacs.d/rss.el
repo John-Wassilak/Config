@@ -2,21 +2,37 @@
 
 (setq my/rss-yt-prefix "https://www.youtube.com/feeds/videos.xml?channel_id=")
 
+;; Feeds built locally by common/rss/yt-feedgen, which polls YouTube
+;; through yt-dlp instead of videos.xml. Rows tagged "ytdlp" read from
+;; here; rows tagged "yt" still hit videos.xml directly. Both take the
+;; bare channel id in the url column, so a channel moves between the two
+;; by editing that one field. Run yt-feedgen before elfeed updates, or
+;; the file is stale (and missing entirely until its first run).
+(setq my/rss-ytdlp-dir "~/.cache/yt-feedgen")
+
 (setq rss/feed-file "/mnt/crypt/john/nextcloud/config/rss-list.csv")
+
+(defun rss/ytdlp-url (channel-id)
+  (concat "file://"
+          (expand-file-name (concat channel-id ".xml")
+                            (expand-file-name my/rss-ytdlp-dir))))
 
 (defun rss/parse-row (row)
   (let* ((raw-url (nth 1 row))
          (site    (nth 0 row))
-         (url     (cond ((string= site "yt") (concat my/rss-yt-prefix raw-url))
+         (url     (cond ((string= site "yt")    (concat my/rss-yt-prefix raw-url))
+                        ((string= site "ytdlp") (rss/ytdlp-url raw-url))
                         (t raw-url)))
          (type    (intern (nth 2 row))))
     `(,url ,type)))
 
 ;; assumes first row is header
-;; assumes yt vides are just the channel id, rest is full url
+;; assumes yt and ytdlp rows are just the channel id, rest is full url
 ;; assumes format:
 ;;     site|url|category|note
 ;;     other|https://stallman.org/rss/rss.xml|text|stallman
+;;     yt|UCbb251iYPK4WlDmIc7GvMgg|run|singletrack pod
+;;     ytdlp|UCJXa3_WNNmIpewOtCHf3B0g|video|lauriewired
 ;;     ...
 (defun rss/load-feed-list ()
   (let* ((file-text (cdr (split-string (f-read-text rss/feed-file) "\n")))
@@ -40,12 +56,17 @@
   (setopt elfeed-log-level 'warn)
   (my/set-24hr-timer "01:00am" 'my/elfeed-update-staggered))
 
-;; `elfeed-update' queues every feed at once. With ~265 of ~293 feeds
-;; pointed at youtube.com, firing them all in one burst trips YouTube's
-;; bot/rate throttling, which comes back as a blanket "HTTP 404" across
-;; the whole batch rather than a per-feed failure (confirmed: every
-;; feed that "404'd" in one bulk update succeeded when retried alone).
-;; Spacing requests out avoids that.
+;; `elfeed-update' queues every feed at once, so spacing the requests out
+;; keeps ~265 youtube.com feeds from going off as one burst.
+;;
+;; Spacing alone does not fix the "HTTP 404" runs, though. Measured at one
+;; request every 25 seconds with nothing else in flight, videos.xml still
+;; answered 404 or 500 for a live channel about 75% of the time, and did
+;; the same on unrelated channels, so it is neither the channel nor the
+;; request rate. The 500s show the feed backend failing rather than the
+;; resource being missing. curl-level retries only reach ~50% because the
+;; failures arrive in correlated windows. That is what the "ytdlp" rows
+;; above route around.
 (defun my/elfeed-update-staggered (&optional delay)
   (interactive)
   (let ((delay (or delay 3))

@@ -1,0 +1,360 @@
+#!/usr/bin/env python3
+"""Build local Atom feeds for YouTube channels with yt-dlp.
+
+YouTube's https://www.youtube.com/feeds/videos.xml endpoint serves
+intermittent 404s and 500s that have nothing to do with the channel
+existing. Measured from this network: ~25% success at one request every
+25 seconds, and the same failure rate on unrelated channels, so it is
+neither channel-specific nor caused by request pacing. curl-level
+retries only reach ~50% because the failures come in correlated windows.
+
+yt-dlp reaches YouTube over the innertube API, a separate backend that
+does not show the failure mode, so this script polls that instead and
+writes the result as an Atom file per channel. elfeed then reads those
+over file:// and never talks to youtube.com itself.
+
+Feed-list rows whose site column is "ytdlp" are handled here. The url
+column holds the bare channel id, exactly as the "yt" rows do, so a row
+moves between the two by editing one field.
+
+Per channel this costs one flat-playlist call. Full metadata (real
+publish timestamp, description) needs one extra call per video, so it is
+fetched only for videos not already cached, and only for the newest
+--detail-per-channel of them. Anything past that cap falls back to the
+listing's approximate date. Those approximations are ordered correctly
+and are day-accurate for recent uploads, but drift by up to a couple of
+weeks further back, so the cap is what keeps the visible top of each
+feed exact while a first run over a few hundred channels stays bounded.
+"""
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import time
+from datetime import datetime, timezone
+from xml.sax.saxutils import escape, quoteattr
+
+DEFAULT_FEED_FILE = "/mnt/crypt/john/nextcloud/config/rss-list.csv"
+DEFAULT_OUT_DIR = "~/.cache/yt-feedgen"
+
+# XML 1.0 forbids these outright; yt-dlp metadata occasionally carries them.
+ILLEGAL_XML = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+CHANNEL_ID = re.compile(r"\AUC[A-Za-z0-9_-]{22}\Z")
+
+
+def log(msg):
+    print(msg, file=sys.stderr, flush=True)
+
+
+def clean(text):
+    return ILLEGAL_XML.sub("", text or "")
+
+
+def rfc3339(ts):
+    return datetime.fromtimestamp(int(ts), timezone.utc).strftime("%Y-%m-%dT%H:%M:%S+00:00")
+
+
+def read_channels(feed_file, site):
+    """Channel ids from rows tagged with SITE, in file order, deduplicated.
+
+    Format is the same pipe-separated one rss.el parses:
+        site|url|category|note
+    """
+    out, seen = [], set()
+    with open(feed_file, encoding="utf-8") as fh:
+        next(fh, None)  # header
+        for lineno, line in enumerate(fh, start=2):
+            row = line.rstrip("\n").split("|")
+            if len(row) < 2 or row[0].strip() != site:
+                continue
+            cid = row[1].strip()
+            if not CHANNEL_ID.match(cid):
+                log(f"{feed_file}:{lineno}: not a channel id, skipping: {cid!r}")
+                continue
+            if cid not in seen:
+                seen.add(cid)
+                out.append(cid)
+    return out
+
+
+def run_ytdlp(args, timeout):
+    """Run yt-dlp and return parsed JSON, or None if the call failed."""
+    cmd = ["yt-dlp", "--ignore-config", "--no-warnings", "-J", *args]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        log(f"  timeout after {timeout}s: {' '.join(args)}")
+        return None
+    except FileNotFoundError:
+        sys.exit("yt-dlp not found on PATH")
+    if proc.returncode != 0:
+        err = proc.stderr.decode("utf-8", "replace").strip().splitlines()
+        log(f"  yt-dlp rc={proc.returncode}: {err[-1] if err else 'no output'}")
+        return None
+    try:
+        return json.loads(proc.stdout.decode("utf-8", "replace"))
+    except json.JSONDecodeError as exc:
+        log(f"  unparseable yt-dlp output: {exc}")
+        return None
+
+
+def fetch_listing(cid, source, limit, timeout):
+    """Flat listing of a channel's recent videos. One request."""
+    if source == "uploads":
+        # The UU... uploads playlist mirrors what videos.xml returns,
+        # shorts and streams included. The /videos tab omits those.
+        url = "https://www.youtube.com/playlist?list=UU" + cid[2:]
+    else:
+        url = f"https://www.youtube.com/channel/{cid}/{source}"
+    return run_ytdlp(
+        [
+            "--flat-playlist",
+            "--playlist-end", str(limit),
+            # Without this the flat listing carries no timestamp at all.
+            "--extractor-args", "youtubetab:approximate_date",
+            url,
+        ],
+        timeout,
+    )
+
+
+def fetch_detail(video_id, timeout):
+    """Exact publish time and description for one video. One request."""
+    return run_ytdlp(
+        ["--no-playlist", "--skip-download", f"https://www.youtube.com/watch?v={video_id}"],
+        timeout,
+    )
+
+
+def load_state(path):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+
+
+def write_atomic(path, text):
+    directory = os.path.dirname(path)
+    fd, tmp = tempfile.mkstemp(dir=directory, prefix=".tmp-")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        os.chmod(tmp, 0o644)  # mkstemp makes it 0600
+        os.replace(tmp, path)
+    except BaseException:
+        os.unlink(tmp)
+        raise
+
+
+def render_atom(channel, videos, include_description):
+    """Render an Atom feed shaped like YouTube's own videos.xml.
+
+    elfeed keys entries off <id>, so yt:video:<id> keeps an entry stable
+    across runs. elfeed's Atom parser reads <content>/<summary> and
+    ignores media:description, so the description is emitted in both
+    places: media:group for shape parity, <content> so it renders.
+    """
+    cid = channel["id"]
+    name = clean(channel.get("title") or cid)
+    curl = f"https://www.youtube.com/channel/{cid}"
+    newest = max((v["published"] for v in videos), default=int(time.time()))
+
+    out = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015"'
+        ' xmlns:media="http://search.yahoo.com/mrss/"'
+        ' xmlns="http://www.w3.org/2005/Atom">',
+        f"  <yt:channelId>{escape(cid)}</yt:channelId>",
+        f"  <id>yt:channel:{escape(cid)}</id>",
+        f"  <title>{escape(name)}</title>",
+        f"  <link rel=\"alternate\" href={quoteattr(curl)}/>",
+        f"  <author><name>{escape(name)}</name><uri>{escape(curl)}</uri></author>",
+        f"  <published>{rfc3339(newest)}</published>",
+        f"  <updated>{rfc3339(newest)}</updated>",
+    ]
+    for v in videos:
+        vid = v["id"]
+        watch = f"https://www.youtube.com/watch?v={vid}"
+        stamp = rfc3339(v["published"])
+        desc = clean(v.get("description") or "")
+        out += [
+            "  <entry>",
+            f"    <id>yt:video:{escape(vid)}</id>",
+            f"    <yt:videoId>{escape(vid)}</yt:videoId>",
+            f"    <yt:channelId>{escape(cid)}</yt:channelId>",
+            f"    <title>{escape(clean(v.get('title') or vid))}</title>",
+            f"    <link rel=\"alternate\" href={quoteattr(watch)}/>",
+            f"    <author><name>{escape(name)}</name><uri>{escape(curl)}</uri></author>",
+            f"    <published>{stamp}</published>",
+            f"    <updated>{stamp}</updated>",
+            "    <media:group>",
+            f"      <media:title>{escape(clean(v.get('title') or vid))}</media:title>",
+        ]
+        if v.get("thumbnail"):
+            out.append(f"      <media:thumbnail url={quoteattr(clean(v['thumbnail']))}/>")
+        if desc:
+            out.append(f"      <media:description>{escape(desc)}</media:description>")
+        out.append("    </media:group>")
+        if desc and include_description:
+            body = "".join(
+                f"<p>{escape(par)}</p>" for par in desc.split("\n") if par.strip()
+            )
+            out.append(f'    <content type="html">{escape(body)}</content>')
+        out.append("  </entry>")
+    out.append("</feed>")
+    return "\n".join(out) + "\n"
+
+
+def sync_channel(cid, opts, budget):
+    """Refresh one channel. Returns (ok, detail_calls_used)."""
+    state_path = os.path.join(opts.out_dir, ".state", f"{cid}.json")
+    feed_path = os.path.join(opts.out_dir, f"{cid}.xml")
+    state = load_state(state_path)
+    if state is None:
+        state = {"channel": {"id": cid, "title": cid}, "videos": {}}
+
+    data = fetch_listing(cid, opts.source, opts.limit, opts.timeout)
+    if data is None:
+        # Never truncate a good feed because one poll failed. A channel
+        # that has never succeeded still needs a parseable file, or
+        # elfeed logs an error every update.
+        if not os.path.exists(feed_path):
+            write_atomic(feed_path, render_atom(state["channel"], [], opts.description))
+            log(f"  wrote empty placeholder feed for {cid}")
+        return False, 0
+
+    state["channel"] = {
+        "id": cid,
+        "title": data.get("channel") or data.get("uploader") or cid,
+    }
+
+    listed = [e for e in (data.get("entries") or []) if e.get("id")]
+    known = state["videos"]
+    used = 0
+    for position, entry in enumerate(listed):
+        vid = entry["id"]
+        if vid in known:
+            # Titles get edited after upload; dates must stay put or the
+            # entry resurfaces as unread.
+            if entry.get("title"):
+                known[vid]["title"] = entry["title"]
+            continue
+
+        record = {
+            "id": vid,
+            "title": entry.get("title") or vid,
+            "thumbnail": (entry.get("thumbnails") or [{}])[-1].get("url"),
+            "description": None,
+            "exact": False,
+        }
+        detail = None
+        # Newest first, so the cap spends its calls where they show.
+        if used < opts.detail_per_channel and (budget is None or budget > 0):
+            detail = fetch_detail(vid, opts.timeout)
+            used += 1
+            if detail is None:
+                log(f"  detail fetch failed for {vid}, falling back to approximate date")
+        if detail:
+            record["published"] = int(detail.get("timestamp") or time.time())
+            record["description"] = detail.get("description")
+            record["thumbnail"] = detail.get("thumbnail") or record["thumbnail"]
+            record["exact"] = True
+        else:
+            # Approximate dates tie (several videos all read as "1 month
+            # ago"), and so does the time.time() fallback. Ties would sort
+            # arbitrarily, so offset by listing position -- newest first --
+            # to keep the channel's real order.
+            base = int(entry.get("timestamp") or time.time())
+            record["published"] = base - position
+        known[vid] = record
+
+    videos = sorted(known.values(), key=lambda v: v["published"], reverse=True)[: opts.keep]
+    state["videos"] = {v["id"]: v for v in videos}
+
+    if opts.dry_run:
+        log(f"  dry run: {len(videos)} videos, {used} detail fetches")
+        return True, used
+
+    write_atomic(feed_path, render_atom(state["channel"], videos, opts.description))
+    write_atomic(state_path, json.dumps(state, indent=1, sort_keys=True))
+    return True, used
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p.add_argument("--feed-file", default=DEFAULT_FEED_FILE,
+                   help="pipe-separated feed list (default: %(default)s)")
+    p.add_argument("--site", default="ytdlp",
+                   help="site column value to handle (default: %(default)s)")
+    p.add_argument("--out-dir", default=DEFAULT_OUT_DIR,
+                   help="where the .xml feeds are written (default: %(default)s)")
+    p.add_argument("--only", action="append", metavar="CHANNEL_ID",
+                   help="refresh just this channel; repeatable, skips the feed list")
+    p.add_argument("--source", default="uploads", choices=("uploads", "videos", "shorts", "streams"),
+                   help="uploads matches videos.xml exactly; videos drops shorts and "
+                        "streams (default: %(default)s)")
+    p.add_argument("--limit", type=int, default=15,
+                   help="videos to read from the listing per run (default: %(default)s)")
+    p.add_argument("--keep", type=int, default=50,
+                   help="videos to retain per feed (default: %(default)s)")
+    p.add_argument("--delay", type=float, default=2.0,
+                   help="seconds between channels (default: %(default)s)")
+    p.add_argument("--detail-per-channel", type=int, default=3,
+                   help="max per-video metadata fetches per channel per run; the rest "
+                        "fall back to approximate dates (default: %(default)s)")
+    p.add_argument("--detail-budget", type=int, default=0,
+                   help="max per-video metadata fetches across the whole run, "
+                        "0 for no overall cap (default: %(default)s)")
+    p.add_argument("--timeout", type=int, default=90,
+                   help="seconds per yt-dlp call (default: %(default)s)")
+    p.add_argument("--no-description", dest="description", action="store_false",
+                   help="omit <content>, matching how the plain yt feeds render")
+    p.add_argument("--dry-run", action="store_true", help="fetch but write nothing")
+    opts = p.parse_args()
+
+    opts.out_dir = os.path.expanduser(opts.out_dir)
+    os.makedirs(os.path.join(opts.out_dir, ".state"), exist_ok=True)
+
+    if opts.only:
+        channels = opts.only
+    else:
+        try:
+            channels = read_channels(opts.feed_file, opts.site)
+        except OSError as exc:
+            sys.exit(f"cannot read feed list: {exc}")
+    if not channels:
+        log(f"no rows with site={opts.site!r} in {opts.feed_file}")
+        return 0
+
+    budget = opts.detail_budget if opts.detail_budget > 0 else None
+    failed = []
+    for n, cid in enumerate(channels):
+        if n:
+            time.sleep(opts.delay)
+        log(f"[{n + 1}/{len(channels)}] {cid}")
+        try:
+            ok, used = sync_channel(cid, opts, budget)
+        except OSError as exc:
+            log(f"  write failed: {exc}")
+            ok, used = False, 0
+        if budget is not None:
+            budget -= used
+        if not ok:
+            failed.append(cid)
+
+    done = len(channels) - len(failed)
+    log(f"{done}/{len(channels)} channels refreshed into {opts.out_dir}")
+    if failed:
+        log("failed: " + " ".join(failed))
+    # Partial failure is normal and the stale feeds are still readable;
+    # only a total wipeout is worth a nonzero exit.
+    return 1 if failed and not done else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

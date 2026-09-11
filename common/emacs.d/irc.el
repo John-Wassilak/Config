@@ -25,11 +25,11 @@
 ;; Keyed on the `:id' above rather than the network name: a connection
 ;; opened with an `:id' is looked up by it (`erc-autojoin-server-match').
 (setopt erc-autojoin-channels-alist
-        '((irc:Libera.Chat "#emacs" "#lfs" "#lfs-support"
+        '((irc:Libera.Chat "#lfs" "#lfs-support"
                            "#linux" "#security"
                            "#fsf" "#gnu" "#systemcrafters")
           (irc:2600net     "#2600" "#offthehook" "#offthewall"
-                           "#secnews" "#WorldNews" "#hamradio")))
+                           "#secnews" "#hamradio")))
 
 
 ;;; --- auth ---------------------------------------------------------

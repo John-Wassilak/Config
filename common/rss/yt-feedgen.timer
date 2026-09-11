@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh yt-dlp-backed YouTube feeds ahead of the 01:00 elfeed update
+
+[Timer]
+OnCalendar=*-*-* 00:15:00
+Persistent=true
+AccuracySec=1min
+RandomizedDelaySec=2min
+
+[Install]
+WantedBy=timers.target
