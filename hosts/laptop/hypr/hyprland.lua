@@ -81,6 +81,29 @@ hl.on("hyprland.start", function()
     -- "[CRITICAL] Couldn't create the dbus connection ... File exists".
     hl.exec_cmd("systemctl --user restart xdg-desktop-portal.service xdg-desktop-portal-hyprland.service")
 
+    -- Nextcloud desktop client (agent-built-lfs seq 333), started here rather
+    -- than via its own installed systemd user unit: that unit is
+    -- WantedBy=graphical.target, and this session never reaches it -- Hyprland
+    -- starts from getty@tty2 and the user manager only gets to default.target,
+    -- so `systemctl --user enable` would write the symlink and never fire.
+    --
+    -- The mountpoint guard is the important part. Both sync roots live on the
+    -- hand-mounted LUKS volume (/mnt/crypt/john/nextcloud -> /backup and
+    -- /mnt/crypt/john/cadence-running -> /cadence_running), and there is no
+    -- fstab or crypttab entry for it, so at login it is usually NOT mounted
+    -- yet. Starting the client against a missing or empty sync root is the one
+    -- way this setup can lose data: promptDeleteAllFiles is false -- upstream's
+    -- own default, not a local choice -- so SyncEngine::handleMassDeletion()
+    -- propagates a mass delete without asking. Not starting at all is the safe
+    -- failure. Unlock and mount /mnt/crypt, then run `nextcloud --background`
+    -- by hand (or just re-login).
+    --
+    -- Placed after `dms run` so DankMaterialShell has already claimed
+    -- org.kde.StatusNotifierWatcher, the same ordering `tailscale systray`
+    -- relies on, so the tray icon lands in the bar rather than waiting for a
+    -- bus name that is not there yet.
+    hl.exec_cmd("bash -c 'mountpoint -q /mnt/crypt && exec nextcloud --background'")
+
     -- prime the automation pass store's passphrase cache once at login (8h
     -- ttl, see ~/.gnupg-auto/gpg-agent.conf) so scripts/cron never prompt
     -- afterward
