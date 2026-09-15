@@ -51,6 +51,11 @@ case "$HOST" in
         # linking a 'vault' shim would shadow nothing and turn
         # "command not found" into a confusing shim error.
         links["$HOME/.local/bin/bao"]="$REPO_DIR/common/pass/vault-wrapper"
+        # Single file, not the whole ~/Scripts dir -- the rest of it is
+        # untracked. Invoked by hosts/server/bash/bash_profile.local at
+        # console login. Not linked on laptop yet: that host has its own
+        # copy with rules this one has never seen, so it needs a diff first.
+        links["$HOME/Scripts/firewall.sh"]="$REPO_DIR/common/firewall/firewall.sh"
         ;;
     *)
         echo "No hosts/$HOST directory — only common links will be applied."
