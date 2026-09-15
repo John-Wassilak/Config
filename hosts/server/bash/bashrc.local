@@ -1,6 +1,15 @@
 # Server-only additions, sourced after common/bash/bashrc.common.
 #
-# No ~/.password-store on this host, so the VAULT_*/JIRA_CLIENT_*
-# exports that exist on hosts/laptop are deliberately not mirrored here.
+# No ~/.password-store-auto on this host, so the JIRA_CLIENT_* exports and
+# the jira-env helper that exist on hosts/laptop are deliberately not
+# mirrored here -- there is nothing for pass-auto to read.
+#
+# VAULT_ADDR/BAO_ADDR are not set here either, on purpose: they come from
+# the common/pass/vault-wrapper shim linked to ~/.local/bin/bao, so the
+# address is attached to the binary rather than to every shell. Without it
+# the openbao CLI defaults to https://127.0.0.1:8200 and every call
+# silently targets localhost instead of ifd-vault. See
+# hosts/server/bash/bash_profile.local for the PATH ordering that shim
+# depends on.
 
 export IFD_FLEET_ROOT=/home/john/the-commodore

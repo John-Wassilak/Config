@@ -47,6 +47,10 @@ case "$HOST" in
         links["$HOME/start-awesome.sh"]="$REPO_DIR/hosts/server/start-awesome.sh"
         links["$HOME/.bashrc"]="$REPO_DIR/hosts/server/bash/bashrc"
         links["$HOME/.bash_profile"]="$REPO_DIR/hosts/server/bash/bash_profile"
+        # openbao only -- no hashicorp 'vault' binary on this host, so
+        # linking a 'vault' shim would shadow nothing and turn
+        # "command not found" into a confusing shim error.
+        links["$HOME/.local/bin/bao"]="$REPO_DIR/common/pass/vault-wrapper"
         ;;
     *)
         echo "No hosts/$HOST directory — only common links will be applied."
