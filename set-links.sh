@@ -16,14 +16,14 @@ declare -A links=(
     ["$HOME/.bash_logout"]="$REPO_DIR/common/bash/bash_logout"
     ["$HOME/.ssh/agent-bootstrap.sh"]="$REPO_DIR/common/ssh/agent-bootstrap.sh"
     ["$HOME/.config/gtk-3.0"]="$REPO_DIR/common/gtk-3.0"
-    ["$HOME/.local/bin/yt-feedgen"]="$REPO_DIR/common/rss/yt-feedgen"
+    ["$HOME/.local/bin/feedgen"]="$REPO_DIR/common/rss/feedgen"
     # Individual units, not the whole user unit dir: ~/.config/systemd/user
     # also holds untracked units and the *.target.wants enable symlinks.
     # Linking only puts them in place; enabling is a separate one-time
     # "systemctl --user daemon-reload && systemctl --user enable --now
-    # yt-feedgen.timer" per host.
-    ["$HOME/.config/systemd/user/yt-feedgen.service"]="$REPO_DIR/common/rss/yt-feedgen.service"
-    ["$HOME/.config/systemd/user/yt-feedgen.timer"]="$REPO_DIR/common/rss/yt-feedgen.timer"
+    # feedgen.timer" per host.
+    ["$HOME/.config/systemd/user/feedgen.service"]="$REPO_DIR/common/rss/feedgen.service"
+    ["$HOME/.config/systemd/user/feedgen.timer"]="$REPO_DIR/common/rss/feedgen.timer"
 )
 
 # Host-specific additions. Add a case below (and a hosts/<name>/ dir)

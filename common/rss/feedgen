@@ -1,0 +1,523 @@
+#!/usr/bin/env python3
+"""Build local Atom feeds with yt-dlp for sites elfeed cannot poll directly.
+
+Each site the script knows about is a provider, named by the value in
+the feed list's site column. A provider says how to turn the url column
+into a listing yt-dlp understands and how to name the entries it writes.
+Rows tagged with any other site are left to elfeed.
+
+  ytdlp   YouTube channels, by bare channel id.
+
+          YouTube's https://www.youtube.com/feeds/videos.xml endpoint
+          serves intermittent 404s and 500s that have nothing to do with
+          the channel existing. Measured from this network: ~25% success
+          at one request every 25 seconds, and the same failure rate on
+          unrelated channels, so it is neither channel-specific nor
+          caused by request pacing. curl-level retries only reach ~50%
+          because the failures come in correlated windows. yt-dlp
+          reaches YouTube over the innertube API, a separate backend
+          that does not show the failure mode.
+
+          The url column holds the bare channel id, exactly as the "yt"
+          rows elfeed fetches directly do, so a row moves between the
+          two by editing one field.
+
+  tiktok  TikTok accounts, by handle.
+
+          TikTok publishes no feed of any kind, so there is nothing for
+          elfeed to poll. The url column takes the handle with or
+          without a leading "@", or a full profile URL pasted from the
+          address bar; all three normalise to the bare handle.
+
+Cost differs sharply between the two, because their listings differ.
+TikTok's flat listing already carries the exact publish timestamp and
+the full description, so one call per account is the whole job. YouTube's
+carries neither: full metadata needs one extra call per video, so it is
+fetched only for videos not already cached, and only for the newest
+--detail-per-channel of them. Anything past that cap falls back to the
+listing's approximate date. Those approximations are ordered correctly
+and are day-accurate for recent uploads, but drift by up to a couple of
+weeks further back, so the cap is what keeps the visible top of each
+feed exact while a first run over a few hundred channels stays bounded.
+"""
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import time
+from datetime import datetime, timezone
+from xml.sax.saxutils import escape, quoteattr
+
+DEFAULT_FEED_FILE = "/mnt/crypt/john/nextcloud/config/rss-list.csv"
+
+# Still the yt-only name from when this script was yt-feedgen. elfeed
+# keys its database off the feed url, which for these rows is the
+# file:// path to a file in here, so renaming the directory would
+# resurface every cached entry on every ytdlp feed as unread.
+DEFAULT_OUT_DIR = "~/.cache/yt-feedgen"
+
+# XML 1.0 forbids these outright; yt-dlp metadata occasionally carries them.
+ILLEGAL_XML = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+
+CHANNEL_ID = re.compile(r"\AUC[A-Za-z0-9_-]{22}\Z")
+TIKTOK_HANDLE = re.compile(r"\A[A-Za-z0-9_.]{1,24}\Z")
+TIKTOK_PREFIX = re.compile(r"\Ahttps?://(?:www\.)?tiktok\.com/")
+
+
+def log(msg):
+    print(msg, file=sys.stderr, flush=True)
+
+
+def clean(text):
+    return ILLEGAL_XML.sub("", text or "")
+
+
+def rfc3339(ts):
+    return datetime.fromtimestamp(int(ts), timezone.utc).strftime("%Y-%m-%dT%H:%M:%S+00:00")
+
+
+# --- providers ---------------------------------------------------------
+
+def youtube_id(raw):
+    return raw if CHANNEL_ID.match(raw) else None
+
+
+def tiktok_id(raw):
+    """Handle from a handle, an @handle, or a profile URL."""
+    raw = TIKTOK_PREFIX.sub("", raw)
+    raw = raw.split("/")[0].split("?")[0].lstrip("@")
+    return raw if TIKTOK_HANDLE.match(raw) else None
+
+
+def youtube_listing(pid, opts):
+    if opts.source == "uploads":
+        # The UU... uploads playlist mirrors what videos.xml returns,
+        # shorts and streams included. The /videos tab omits those.
+        url = "https://www.youtube.com/playlist?list=UU" + pid[2:]
+    else:
+        url = f"https://www.youtube.com/channel/{pid}/{opts.source}"
+    # Without this the flat listing carries no timestamp at all.
+    return url, ["--extractor-args", "youtubetab:approximate_date"]
+
+
+def tiktok_listing(pid, opts):
+    return f"https://www.tiktok.com/@{pid}", []
+
+
+class Provider:
+    """Everything that differs between one site and the next."""
+
+    def __init__(self, name, id_label, parse_id, listing, subdir,
+                 feed_id, entry_id, page_url, entry_url,
+                 detail=False, listing_complete=False,
+                 thumbnails=False, yt_namespace=False):
+        self.name = name
+        self.id_label = id_label
+        self.parse_id = parse_id
+        self.listing = listing
+        self.subdir = subdir
+        self.feed_id = feed_id
+        self.entry_id = entry_id
+        self.page_url = page_url
+        self.entry_url = entry_url
+        # Whether new videos are worth a second yt-dlp call for metadata
+        # the listing left out.
+        self.detail = detail
+        # Whether the listing already carries the real publish timestamp
+        # and the full description. When it does there is nothing to fetch
+        # and nothing to approximate, and a description edited after the
+        # fact can be picked up on any later run for free.
+        self.listing_complete = listing_complete
+        # Whether to carry a media:thumbnail. elfeed does not render it,
+        # so it is shape parity with videos.xml and nothing more.
+        self.thumbnails = thumbnails
+        # Emit YouTube's yt:videoId / yt:channelId elements, for the same
+        # parity. elfeed reads neither.
+        self.yt_namespace = yt_namespace
+
+    def dirs(self, out_dir):
+        base = os.path.join(out_dir, self.subdir) if self.subdir else out_dir
+        return base, os.path.join(base, ".state")
+
+
+PROVIDERS = {
+    p.name: p for p in (
+        Provider(
+            "ytdlp", "channel id", youtube_id, youtube_listing, subdir="",
+            feed_id=lambda pid: f"yt:channel:{pid}",
+            entry_id=lambda pid, vid: f"yt:video:{vid}",
+            page_url=lambda pid: f"https://www.youtube.com/channel/{pid}",
+            entry_url=lambda pid, vid: f"https://www.youtube.com/watch?v={vid}",
+            detail=True, thumbnails=True, yt_namespace=True,
+        ),
+        Provider(
+            "tiktok", "handle", tiktok_id, tiktok_listing, subdir="tiktok",
+            feed_id=lambda pid: f"tiktok:user:{pid}",
+            entry_id=lambda pid, vid: f"tiktok:video:{vid}",
+            page_url=lambda pid: f"https://www.tiktok.com/@{pid}",
+            entry_url=lambda pid, vid: f"https://www.tiktok.com/@{pid}/video/{vid}",
+            listing_complete=True,
+            # TikTok's thumbnail URLs are signed, and both the signature
+            # and the CDN host change on every request, so carrying one
+            # would rewrite every feed file on every run. They also expire
+            # after about two days, well inside the life of an unread
+            # entry, so the churn would buy a dead link.
+            thumbnails=False,
+        ),
+    )
+}
+
+
+# --- feed list ---------------------------------------------------------
+
+def read_feed_list(feed_file, sites):
+    """{site: [id, ...]} for the requested sites, in file order, deduplicated.
+
+    Format is the same pipe-separated one rss.el parses:
+        site|url|category|note
+    """
+    out = {site: [] for site in sites}
+    seen = {site: set() for site in sites}
+    with open(feed_file, encoding="utf-8") as fh:
+        next(fh, None)  # header
+        for lineno, line in enumerate(fh, start=2):
+            row = line.rstrip("\n").split("|")
+            if len(row) < 2:
+                continue
+            site = row[0].strip()
+            if site not in out:
+                continue
+            prov = PROVIDERS[site]
+            raw = row[1].strip()
+            pid = prov.parse_id(raw)
+            if pid is None:
+                log(f"{feed_file}:{lineno}: not a {site} {prov.id_label}, skipping: {raw!r}")
+                continue
+            if pid not in seen[site]:
+                seen[site].add(pid)
+                out[site].append(pid)
+    return out
+
+
+# --- yt-dlp ------------------------------------------------------------
+
+def run_ytdlp(args, timeout):
+    """Run yt-dlp and return parsed JSON, or None if the call failed."""
+    cmd = ["yt-dlp", "--ignore-config", "--no-warnings", "-J", *args]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        log(f"  timeout after {timeout}s: {' '.join(args)}")
+        return None
+    except FileNotFoundError:
+        sys.exit("yt-dlp not found on PATH")
+    if proc.returncode != 0:
+        err = proc.stderr.decode("utf-8", "replace").strip().splitlines()
+        log(f"  yt-dlp rc={proc.returncode}: {err[-1] if err else 'no output'}")
+        return None
+    try:
+        return json.loads(proc.stdout.decode("utf-8", "replace"))
+    except json.JSONDecodeError as exc:
+        log(f"  unparseable yt-dlp output: {exc}")
+        return None
+
+
+def fetch_listing(prov, pid, opts):
+    """Flat listing of an account's recent videos. One request."""
+    url, extra = prov.listing(pid, opts)
+    return run_ytdlp(
+        ["--flat-playlist", "--playlist-end", str(opts.limit), *extra, url],
+        opts.timeout,
+    )
+
+
+def fetch_detail(url, timeout):
+    """Exact publish time and description for one video. One request."""
+    return run_ytdlp(["--no-playlist", "--skip-download", url], timeout)
+
+
+# --- output ------------------------------------------------------------
+
+def load_state(path):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+
+
+def write_atomic(path, text):
+    directory = os.path.dirname(path)
+    fd, tmp = tempfile.mkstemp(dir=directory, prefix=".tmp-")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        os.chmod(tmp, 0o644)  # mkstemp makes it 0600
+        os.replace(tmp, path)
+    except BaseException:
+        os.unlink(tmp)
+        raise
+
+
+def render_atom(prov, channel, videos, include_description):
+    """Render an Atom feed shaped like YouTube's own videos.xml.
+
+    elfeed keys entries off <id>, so a stable per-video id keeps an entry
+    from resurfacing across runs. elfeed's Atom parser reads
+    <content>/<summary> and ignores media:description, so the description
+    is emitted in both places: media:group for shape parity, <content> so
+    it renders.
+    """
+    pid = channel["id"]
+    name = clean(channel.get("title") or pid)
+    curl = prov.page_url(pid)
+    newest = max((v["published"] for v in videos), default=int(time.time()))
+
+    out = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015"'
+        ' xmlns:media="http://search.yahoo.com/mrss/"'
+        ' xmlns="http://www.w3.org/2005/Atom">',
+    ]
+    if prov.yt_namespace:
+        out.append(f"  <yt:channelId>{escape(pid)}</yt:channelId>")
+    out += [
+        f"  <id>{escape(prov.feed_id(pid))}</id>",
+        f"  <title>{escape(name)}</title>",
+        f"  <link rel=\"alternate\" href={quoteattr(curl)}/>",
+        f"  <author><name>{escape(name)}</name><uri>{escape(curl)}</uri></author>",
+        f"  <published>{rfc3339(newest)}</published>",
+        f"  <updated>{rfc3339(newest)}</updated>",
+    ]
+    for v in videos:
+        vid = v["id"]
+        watch = prov.entry_url(pid, vid)
+        stamp = rfc3339(v["published"])
+        title = escape(clean(v.get("title") or vid))
+        desc = clean(v.get("description") or "")
+        out += [
+            "  <entry>",
+            f"    <id>{escape(prov.entry_id(pid, vid))}</id>",
+        ]
+        if prov.yt_namespace:
+            out += [
+                f"    <yt:videoId>{escape(vid)}</yt:videoId>",
+                f"    <yt:channelId>{escape(pid)}</yt:channelId>",
+            ]
+        out += [
+            f"    <title>{title}</title>",
+            f"    <link rel=\"alternate\" href={quoteattr(watch)}/>",
+            f"    <author><name>{escape(name)}</name><uri>{escape(curl)}</uri></author>",
+            f"    <published>{stamp}</published>",
+            f"    <updated>{stamp}</updated>",
+            "    <media:group>",
+            f"      <media:title>{title}</media:title>",
+        ]
+        if v.get("thumbnail"):
+            out.append(f"      <media:thumbnail url={quoteattr(clean(v['thumbnail']))}/>")
+        if desc:
+            out.append(f"      <media:description>{escape(desc)}</media:description>")
+        out.append("    </media:group>")
+        if desc and include_description:
+            body = "".join(
+                f"<p>{escape(par)}</p>" for par in desc.split("\n") if par.strip()
+            )
+            out.append(f'    <content type="html">{escape(body)}</content>')
+        out.append("  </entry>")
+    out.append("</feed>")
+    return "\n".join(out) + "\n"
+
+
+# --- sync --------------------------------------------------------------
+
+def thumbnail_of(entry):
+    return (entry.get("thumbnails") or [{}])[-1].get("url")
+
+
+def sync_channel(prov, pid, opts, budget):
+    """Refresh one account. Returns (ok, detail_calls_used)."""
+    feed_dir, state_dir = prov.dirs(opts.out_dir)
+    state_path = os.path.join(state_dir, f"{pid}.json")
+    feed_path = os.path.join(feed_dir, f"{pid}.xml")
+    state = load_state(state_path)
+    if state is None:
+        state = {"channel": {"id": pid, "title": pid}, "videos": {}}
+
+    data = fetch_listing(prov, pid, opts)
+    if data is None:
+        # Never truncate a good feed because one poll failed. An account
+        # that has never succeeded still needs a parseable file, or
+        # elfeed logs an error every update.
+        if not os.path.exists(feed_path):
+            write_atomic(feed_path, render_atom(prov, state["channel"], [], opts.description))
+            log(f"  wrote empty placeholder feed for {pid}")
+        return False, 0
+
+    listed = [e for e in (data.get("entries") or []) if e.get("id")]
+    state["channel"] = {
+        "id": pid,
+        # TikTok puts the display name on the entries, not the playlist,
+        # whose title is just the handle again.
+        "title": (data.get("channel") or data.get("uploader")
+                  or (listed[0].get("channel") if listed else None)
+                  or data.get("title") or pid),
+    }
+
+    known = state["videos"]
+    used = 0
+    for position, entry in enumerate(listed):
+        vid = entry["id"]
+        if vid in known:
+            # Titles get edited after upload; dates must stay put or the
+            # entry resurfaces as unread.
+            if entry.get("title"):
+                known[vid]["title"] = entry["title"]
+            # Captions get edited too, and when the listing carries the
+            # description there is no call to make to pick that up.
+            if prov.listing_complete and entry.get("description"):
+                known[vid]["description"] = entry["description"]
+            continue
+
+        record = {
+            "id": vid,
+            "title": entry.get("title") or vid,
+            "thumbnail": thumbnail_of(entry) if prov.thumbnails else None,
+            "description": None,
+            "exact": False,
+        }
+        detail = None
+        # Newest first, so the cap spends its calls where they show.
+        if prov.detail and used < opts.detail_per_channel and (budget is None or budget > 0):
+            detail = fetch_detail(prov.entry_url(pid, vid), opts.timeout)
+            used += 1
+            if detail is None:
+                log(f"  detail fetch failed for {vid}, falling back to approximate date")
+        if detail:
+            record["published"] = int(detail.get("timestamp") or time.time())
+            record["description"] = detail.get("description")
+            record["thumbnail"] = detail.get("thumbnail") or record["thumbnail"]
+            record["exact"] = True
+        elif prov.listing_complete and entry.get("timestamp"):
+            record["published"] = int(entry["timestamp"])
+            record["description"] = entry.get("description")
+            record["exact"] = True
+        else:
+            # Approximate dates tie (several videos all read as "1 month
+            # ago"), and so does the time.time() fallback. Ties would sort
+            # arbitrarily, so offset by listing position -- newest first --
+            # to keep the account's real order.
+            base = int(entry.get("timestamp") or time.time())
+            record["published"] = base - position
+        known[vid] = record
+
+    videos = sorted(known.values(), key=lambda v: v["published"], reverse=True)[: opts.keep]
+    state["videos"] = {v["id"]: v for v in videos}
+
+    if opts.dry_run:
+        log(f"  dry run: {len(videos)} videos, {used} detail fetches")
+        return True, used
+
+    write_atomic(feed_path, render_atom(prov, state["channel"], videos, opts.description))
+    write_atomic(state_path, json.dumps(state, indent=1, sort_keys=True))
+    return True, used
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p.add_argument("--feed-file", default=DEFAULT_FEED_FILE,
+                   help="pipe-separated feed list (default: %(default)s)")
+    p.add_argument("--site", action="append", choices=sorted(PROVIDERS),
+                   help="site column value to handle; repeatable "
+                        "(default: every provider)")
+    p.add_argument("--out-dir", default=DEFAULT_OUT_DIR,
+                   help="where the .xml feeds are written (default: %(default)s)")
+    p.add_argument("--only", action="append", metavar="ID",
+                   help="refresh just this channel id or handle; repeatable, "
+                        "skips the feed list, needs exactly one --site")
+    p.add_argument("--source", default="uploads", choices=("uploads", "videos", "shorts", "streams"),
+                   help="ytdlp only: uploads matches videos.xml exactly; videos drops "
+                        "shorts and streams (default: %(default)s)")
+    p.add_argument("--limit", type=int, default=15,
+                   help="videos to read from the listing per run (default: %(default)s)")
+    p.add_argument("--keep", type=int, default=50,
+                   help="videos to retain per feed (default: %(default)s)")
+    p.add_argument("--delay", type=float, default=2.0,
+                   help="seconds between accounts (default: %(default)s)")
+    p.add_argument("--detail-per-channel", type=int, default=3,
+                   help="ytdlp only: max per-video metadata fetches per channel per run; "
+                        "the rest fall back to approximate dates (default: %(default)s)")
+    p.add_argument("--detail-budget", type=int, default=0,
+                   help="max per-video metadata fetches across the whole run, "
+                        "0 for no overall cap (default: %(default)s)")
+    p.add_argument("--timeout", type=int, default=90,
+                   help="seconds per yt-dlp call (default: %(default)s)")
+    p.add_argument("--no-description", dest="description", action="store_false",
+                   help="omit <content>, matching how the plain yt feeds render")
+    p.add_argument("--dry-run", action="store_true", help="fetch but write nothing")
+    opts = p.parse_args()
+
+    sites = opts.site or sorted(PROVIDERS)
+    if opts.only and len(sites) != 1:
+        p.error("--only needs exactly one --site, so the ids can be interpreted")
+
+    opts.out_dir = os.path.expanduser(opts.out_dir)
+
+    if opts.only:
+        prov = PROVIDERS[sites[0]]
+        work = {sites[0]: []}
+        for raw in opts.only:
+            pid = prov.parse_id(raw.strip())
+            if pid is None:
+                p.error(f"not a {prov.name} {prov.id_label}: {raw!r}")
+            work[sites[0]].append(pid)
+    else:
+        try:
+            work = read_feed_list(opts.feed_file, sites)
+        except OSError as exc:
+            sys.exit(f"cannot read feed list: {exc}")
+
+    total = sum(len(ids) for ids in work.values())
+    if not total:
+        log(f"no rows for {', '.join(sites)} in {opts.feed_file}")
+        return 0
+
+    for site in sites:
+        if work[site]:
+            for directory in PROVIDERS[site].dirs(opts.out_dir):
+                os.makedirs(directory, exist_ok=True)
+
+    budget = opts.detail_budget if opts.detail_budget > 0 else None
+    failed = []
+    n = 0
+    for site in sites:
+        prov = PROVIDERS[site]
+        for pid in work[site]:
+            if n:
+                time.sleep(opts.delay)
+            n += 1
+            log(f"[{n}/{total}] {site} {pid}")
+            try:
+                ok, used = sync_channel(prov, pid, opts, budget)
+            except OSError as exc:
+                log(f"  write failed: {exc}")
+                ok, used = False, 0
+            if budget is not None:
+                budget -= used
+            if not ok:
+                failed.append(f"{site}/{pid}")
+
+    done = total - len(failed)
+    log(f"{done}/{total} accounts refreshed into {opts.out_dir}")
+    if failed:
+        log("failed: " + " ".join(failed))
+    # Partial failure is normal and the stale feeds are still readable;
+    # only a total wipeout is worth a nonzero exit.
+    return 1 if failed and not done else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

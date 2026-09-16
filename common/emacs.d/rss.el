@@ -2,43 +2,81 @@
 
 (setq my/rss-yt-prefix "https://www.youtube.com/feeds/videos.xml?channel_id=")
 
-;; Feeds built locally by common/rss/yt-feedgen, which polls YouTube
-;; through yt-dlp instead of videos.xml. Rows tagged "ytdlp" read from
-;; here; rows tagged "yt" still hit videos.xml directly. Both take the
-;; bare channel id in the url column, so a channel moves between the two
-;; by editing that one field. Run yt-feedgen before elfeed updates, or
-;; the file is stale (and missing entirely until its first run).
-(setq my/rss-ytdlp-dir "~/.cache/yt-feedgen")
+;; Feeds built locally by common/rss/feedgen, which polls sites elfeed
+;; cannot fetch from usefully and writes each account out as an Atom
+;; file. Rows tagged "ytdlp" (YouTube, by bare channel id) and "tiktok"
+;; (by handle) read from here; rows tagged "yt" still hit videos.xml
+;; directly, so a channel moves between "yt" and "ytdlp" by editing that
+;; one field. Run feedgen before elfeed updates, or the file is stale
+;; (and missing entirely until its first run).
+;;
+;; The directory keeps its yt-only name. elfeed keys its database off
+;; the feed url, which for these rows is the file:// path built below,
+;; so renaming it would resurface every cached ytdlp entry as unread.
+(setq my/rss-feedgen-dir "~/.cache/yt-feedgen")
+
+(defconst my/rss-feedgen-sites
+  '(("ytdlp"  ""       "\\`UC[A-Za-z0-9_-]\\{22\\}\\'")
+    ("tiktok" "tiktok" "\\`[A-Za-z0-9_.]\\{1,24\\}\\'"))
+  "(SITE SUBDIR ID-REGEXP) for each site common/rss/feedgen builds feeds for.
+SUBDIR and the id shapes mirror that script's providers. ytdlp's empty
+SUBDIR is what keeps its feeds at the flat paths elfeed already has.")
 
 (setq rss/feed-file "/mnt/crypt/john/nextcloud/config/rss-list.csv")
 
-(defun rss/ytdlp-url (channel-id)
-  (concat "file://"
-          (expand-file-name (concat channel-id ".xml")
-                            (expand-file-name my/rss-ytdlp-dir))))
+(defun rss/feedgen-id (site raw)
+  "Normalise the url column of a SITE row to the id feedgen files it under.
+Returns nil when RAW is not a usable id, so the row can be dropped
+instead of pointing elfeed at a file feedgen will never write."
+  (let ((id (string-trim raw)))
+    (when (string= site "tiktok")
+      ;; Accept a bare handle, an @handle, or a profile URL pasted from
+      ;; the address bar -- the same three forms feedgen accepts.
+      (setq id (replace-regexp-in-string
+                "\\`https?://\\(?:www\\.\\)?tiktok\\.com/" "" id))
+      (setq id (car (split-string id "/")))
+      (setq id (car (split-string id "\\?")))
+      (setq id (string-remove-prefix "@" id)))
+    (and (string-match-p (nth 2 (assoc site my/rss-feedgen-sites)) id) id)))
+
+(defun rss/feedgen-url (site id)
+  "file:// url of the feed feedgen writes for ID on SITE."
+  (let* ((subdir (nth 1 (assoc site my/rss-feedgen-sites)))
+         (rel    (if (string-empty-p subdir)
+                     (concat id ".xml")
+                   (concat (file-name-as-directory subdir) id ".xml"))))
+    (concat "file://"
+            (expand-file-name rel (expand-file-name my/rss-feedgen-dir)))))
 
 (defun rss/parse-row (row)
-  (let* ((raw-url (nth 1 row))
-         (site    (nth 0 row))
-         (url     (cond ((string= site "yt")    (concat my/rss-yt-prefix raw-url))
-                        ((string= site "ytdlp") (rss/ytdlp-url raw-url))
-                        (t raw-url)))
-         (type    (intern (nth 2 row))))
-    `(,url ,type)))
+  "Feed spec for ROW, or nil when the row cannot be turned into one."
+  (let* ((site (nth 0 row))
+         (raw  (nth 1 row))
+         (url  (cond ((string= site "yt") (concat my/rss-yt-prefix raw))
+                     ((assoc site my/rss-feedgen-sites)
+                      (let ((id (rss/feedgen-id site raw)))
+                        (unless id
+                          (message "rss: skipping %s row, not a usable id: %S" site raw))
+                        (and id (rss/feedgen-url site id))))
+                     (t raw))))
+    (when url
+      (list url (intern (nth 2 row))))))
 
 ;; assumes first row is header
-;; assumes yt and ytdlp rows are just the channel id, rest is full url
+;; assumes yt and ytdlp rows are just the channel id, tiktok rows a
+;; handle (a leading "@" or a whole profile URL is fine), rest is full url
 ;; assumes format:
 ;;     site|url|category|note
 ;;     other|https://stallman.org/rss/rss.xml|text|stallman
 ;;     yt|UCbb251iYPK4WlDmIc7GvMgg|run|singletrack pod
 ;;     ytdlp|UCJXa3_WNNmIpewOtCHf3B0g|video|lauriewired
+;;     tiktok|nasa|video|nasa
 ;;     ...
 (defun rss/load-feed-list ()
   (let* ((file-text (cdr (split-string (f-read-text rss/feed-file) "\n")))
          (file-parsed (seq-map (lambda (x) (split-string x "|")) file-text))
          (file-fltr   (seq-filter (lambda (x) (length> x 1)) file-parsed))
-         (transformed (seq-map 'rss/parse-row file-fltr)))
+         (transformed (delq nil (seq-map 'rss/parse-row file-fltr))))
     transformed))
 
 (setq my/rss-feed-list (rss/load-feed-list))
@@ -78,28 +116,33 @@
         (run-with-timer (* n delay) nil #'elfeed--update-feed feed t)
         (setq n (1+ n))))))
 
-;; `elfeed-update-feed' on a "ytdlp" row only re-reads the cached file,
-;; and yt-feedgen owns that file, so a single-feed refresh has to
+;; `elfeed-update-feed' on a locally built row only re-reads the cached
+;; file, and feedgen owns that file, so a single-feed refresh has to
 ;; regenerate it first or it reparses the same entries. These run the two
-;; halves in order: yt-feedgen --only <channel-id>, then the ordinary
-;; elfeed fetch once it exits nonzero-free. Rows that aren't ytdlp skip
-;; straight to the fetch, so the same key works on every feed.
-(defvar my/rss-ytdlp-program "~/.local/bin/yt-feedgen"
-  "yt-feedgen executable, as linked by set-links.sh.")
+;; halves in order: feedgen --site <site> --only <id>, then the ordinary
+;; elfeed fetch once it exits nonzero-free. Rows feedgen does not own
+;; skip straight to the fetch, so the same key works on every feed.
+(defvar my/rss-feedgen-program "~/.local/bin/feedgen"
+  "feedgen executable, as linked by set-links.sh.")
 
-(defconst my/rss--channel-id-regexp "\\`UC[A-Za-z0-9_-]\\{22\\}\\'"
-  "Matches a YouTube channel id, same shape yt-feedgen validates.")
-
-(defun my/rss--ytdlp-channel-id (url)
-  "Channel id when URL is one of the local ytdlp feeds, else nil."
-  (let ((dir (file-name-as-directory (expand-file-name my/rss-ytdlp-dir)))
+(defun my/rss--feedgen-ref (url)
+  "(SITE . ID) when URL is one of the locally built feeds, else nil."
+  (let ((root (file-name-as-directory (expand-file-name my/rss-feedgen-dir)))
         (prefix "file://"))
     (when (string-prefix-p prefix url)
       (let ((path (substring url (length prefix))))
-        (when (and (string-prefix-p dir path)
+        (when (and (string-prefix-p root path)
                    (string-suffix-p ".xml" path))
-          (let ((base (file-name-base path)))
-            (and (string-match-p my/rss--channel-id-regexp base) base)))))))
+          ;; One path component is the flat ytdlp layout; two means the
+          ;; first names a provider's subdirectory. Anything deeper is
+          ;; not ours.
+          (let* ((parts  (split-string (substring path (length root)) "/"))
+                 (subdir (if (cdr parts) (car parts) ""))
+                 (id     (file-name-base (car (last parts))))
+                 (entry  (seq-find (lambda (e) (string= (nth 1 e) subdir))
+                                   my/rss-feedgen-sites)))
+            (when (and entry (length< parts 3) (string-match-p (nth 2 entry) id))
+              (cons (nth 0 entry) id))))))))
 
 (defun my/elfeed--feed-id-at-point ()
   "Feed id owning the entry at point, in either elfeed buffer."
@@ -114,31 +157,33 @@
     (elfeed-feed-id (elfeed-entry-feed entry))))
 
 (defun my/elfeed-refresh-feed (url)
-  "Update the single feed URL, regenerating it first if it is a ytdlp feed."
+  "Update the single feed URL, regenerating it first if feedgen owns it."
   (interactive (list (elfeed--prompt-feed)))
-  (let ((cid (my/rss--ytdlp-channel-id url)))
-    (if (null cid)
+  (let ((ref (my/rss--feedgen-ref url)))
+    (if (null ref)
         (progn
           (message "elfeed: updating %s" url)
           (elfeed-update-feed url))
-      (let ((program (expand-file-name my/rss-ytdlp-program)))
+      (let ((site    (car ref))
+            (id      (cdr ref))
+            (program (expand-file-name my/rss-feedgen-program)))
         (unless (file-executable-p program)
-          (user-error "yt-feedgen is not executable at %s" program))
-        (message "yt-feedgen: refreshing %s..." cid)
+          (user-error "feedgen is not executable at %s" program))
+        (message "feedgen: refreshing %s %s..." site id)
         (make-process
-         :name (concat "yt-feedgen-" cid)
-         :buffer (get-buffer-create "*yt-feedgen*")
-         :command (list program "--only" cid)
+         :name (concat "feedgen-" id)
+         :buffer (get-buffer-create "*feedgen*")
+         :command (list program "--site" site "--only" id)
          :noquery t
          :sentinel
          (lambda (proc _event)
            (when (memq (process-status proc) '(exit signal))
              (if (/= (process-exit-status proc) 0)
-                 (message "yt-feedgen failed for %s -- see *yt-feedgen*" cid)
+                 (message "feedgen failed for %s -- see *feedgen*" id)
                (run-hooks 'elfeed-update-init-hook)
                (elfeed--update-feed url)
-               (message "yt-feedgen: %s refreshed, elfeed re-reading feed"
-                        cid)))))))))
+               (message "feedgen: %s refreshed, elfeed re-reading feed"
+                        id)))))))))
 
 (defun my/elfeed-refresh-feed-at-point ()
   "Refresh the feed owning the entry at point."

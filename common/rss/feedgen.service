@@ -1,0 +1,12 @@
+[Unit]
+Description=feedgen — build local Atom feeds via yt-dlp for sites elfeed cannot poll
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/feedgen
+# A first run seeds every account from scratch; steady-state runs are
+# roughly one yt-dlp call per account.
+TimeoutStartSec=2h
+Nice=10

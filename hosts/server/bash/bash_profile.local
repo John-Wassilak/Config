@@ -5,7 +5,7 @@ if [ -d "$HOME/Scripts" ] ; then
 fi
 
 # Prepended rather than appended so anything installed here wins over a
-# distro copy of the same name. Holds pass-auto and yt-feedgen; it used to
+# distro copy of the same name. Holds pass-auto and feedgen; it used to
 # hold a bao shim that set VAULT_ADDR, which is now exported from
 # common/bash/bashrc.common instead.
 if [ -d "$HOME/.local/bin" ] ; then

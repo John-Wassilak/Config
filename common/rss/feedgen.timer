@@ -1,5 +1,5 @@
 [Unit]
-Description=Refresh yt-dlp-backed YouTube feeds ahead of the 01:00 elfeed update
+Description=Refresh locally built YouTube and TikTok feeds ahead of the 01:00 elfeed update
 
 [Timer]
 OnCalendar=*-*-* 00:15:00
