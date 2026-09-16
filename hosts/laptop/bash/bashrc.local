@@ -21,11 +21,9 @@ alias record-audio="ffmpeg -f pulse -i alsa_input.usb-C-Media_Electronics_Inc._U
 #
 # VAULT_TOKEN/VAULT_ADDR used to be exported here on every shell open,
 # which also meant every Claude Code Bash subprocess inherited the vault
-# token whether or not it ever touched vault. That's now resolved lazily,
-# at call time, by ~/.local/bin/vault and ~/.local/bin/bao (see
-# common/pass/vault-wrapper) shadowing the real binaries in
-# /home/john/packages/vault. gpg-agent's own cache (8h) is what avoids
-# re-prompting on repeat calls, not anything in this file.
+# token whether or not it ever touched vault. The address is now exported
+# once from common/bash/bashrc.common, and there is no token to export:
+# `bao login -method=oidc` caches a short-lived one to ~/.vault-token.
 #
 # JIRA_CLIENT_ID/SECRET had the same problem and no binary to shadow --
 # jira-trait skills read the vars directly, there's no CLI in the loop.

@@ -1,6 +1,19 @@
 # Sourced by every host's ~/.bashrc. Host-specific env/aliases live in
 # hosts/<host>/bash/bashrc.local, sourced after this file.
 
+# OpenBao/Vault address. Set before the interactivity check below so
+# non-interactive shells (scripts, cron) get it too. Neither the vault nor
+# the bao binary has a default beyond https://127.0.0.1:8200, so leaving
+# this unset silently points every call at localhost.
+#
+# This replaces the common/pass/vault-wrapper PATH shim, which set the
+# address by shadowing the binary and only worked in login shells. No token
+# is set here on purpose: `bao login -method=oidc` caches a short-lived one
+# to ~/.vault-token (0600) and the CLI reads it from there, so it never
+# enters the environment of every child process.
+export VAULT_ADDR="${VAULT_ADDR:-http://ifd-vault:8200}"
+export BAO_ADDR="${BAO_ADDR:-$VAULT_ADDR}"
+
 if [[ $- != *i* ]] ; then
     return
 fi

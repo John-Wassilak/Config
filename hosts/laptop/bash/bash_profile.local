@@ -14,14 +14,9 @@ fi
 # of ~/Scripts on PATH, which was also already prepended just above. The
 # path helpers call pathremove first, so re-running them is idempotent.
 #
-# ~/.local/bin is prepended, not appended: it holds the
-# common/pass/vault-wrapper shims (linked as both 'vault' and 'bao') that
-# point VAULT_ADDR/BAO_ADDR at ifd-vault, and a shim only shadows a real
-# binary that comes later on PATH. Appending happened to work while the only
-# vault/bao binaries lived in ~/packages/vault, which is later still -- but
-# it breaks the moment a package manager drops one in /usr/bin. That is
-# exactly what happened on hosts/server, where openbao installs to
-# /usr/bin/bao and every call defaulted to localhost.
+# ~/.local/bin is prepended, not appended, so anything installed here wins
+# over a distro copy of the same name. It used to hold vault/bao shims that
+# set VAULT_ADDR; that address now comes from common/bash/bashrc.common.
 if [ -d "$HOME/.local/bin" ] ; then
     pathprepend "$HOME/.local/bin"
 fi

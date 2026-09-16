@@ -4,10 +4,10 @@ if [ -d "$HOME/Scripts" ] ; then
     pathprepend "$HOME/Scripts"
 fi
 
-# Must be *prepended*, not appended: the real openbao binary is /usr/bin/bao
-# on this host, so ~/.local/bin/bao (the common/pass/vault-wrapper shim that
-# sets VAULT_ADDR/BAO_ADDR to ifd-vault) only wins if it comes first. An
-# appended ~/.local/bin would leave every call defaulting to localhost.
+# Prepended rather than appended so anything installed here wins over a
+# distro copy of the same name. Holds pass-auto and yt-feedgen; it used to
+# hold a bao shim that set VAULT_ADDR, which is now exported from
+# common/bash/bashrc.common instead.
 if [ -d "$HOME/.local/bin" ] ; then
     pathprepend "$HOME/.local/bin"
 fi

@@ -32,8 +32,6 @@ case "$HOST" in
         links["$HOME/.bashrc"]="$REPO_DIR/hosts/laptop/bash/bashrc"
         links["$HOME/.bash_profile"]="$REPO_DIR/hosts/laptop/bash/bash_profile"
         links["$HOME/.local/bin/pass-auto"]="$REPO_DIR/common/pass/pass-auto"
-        links["$HOME/.local/bin/vault"]="$REPO_DIR/common/pass/vault-wrapper"
-        links["$HOME/.local/bin/bao"]="$REPO_DIR/common/pass/vault-wrapper"
         # Individual units, not the whole user unit dir: ~/.config/systemd/user
         # also holds untracked units and the *.target.wants enable symlinks.
         links["$HOME/.config/systemd/user/vdirsyncer.service"]="$REPO_DIR/hosts/laptop/systemd/vdirsyncer.service"
@@ -47,10 +45,6 @@ case "$HOST" in
         links["$HOME/start-awesome.sh"]="$REPO_DIR/hosts/server/start-awesome.sh"
         links["$HOME/.bashrc"]="$REPO_DIR/hosts/server/bash/bashrc"
         links["$HOME/.bash_profile"]="$REPO_DIR/hosts/server/bash/bash_profile"
-        # openbao only -- no hashicorp 'vault' binary on this host, so
-        # linking a 'vault' shim would shadow nothing and turn
-        # "command not found" into a confusing shim error.
-        links["$HOME/.local/bin/bao"]="$REPO_DIR/common/pass/vault-wrapper"
         # Single file, not the whole ~/Scripts dir -- the rest of it is
         # untracked. Invoked by hosts/server/bash/bash_profile.local at
         # console login. Not linked on laptop yet: that host has its own
