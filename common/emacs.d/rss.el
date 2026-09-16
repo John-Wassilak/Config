@@ -78,6 +78,75 @@
         (run-with-timer (* n delay) nil #'elfeed--update-feed feed t)
         (setq n (1+ n))))))
 
+;; `elfeed-update-feed' on a "ytdlp" row only re-reads the cached file,
+;; and yt-feedgen owns that file, so a single-feed refresh has to
+;; regenerate it first or it reparses the same entries. These run the two
+;; halves in order: yt-feedgen --only <channel-id>, then the ordinary
+;; elfeed fetch once it exits nonzero-free. Rows that aren't ytdlp skip
+;; straight to the fetch, so the same key works on every feed.
+(defvar my/rss-ytdlp-program "~/.local/bin/yt-feedgen"
+  "yt-feedgen executable, as linked by set-links.sh.")
+
+(defconst my/rss--channel-id-regexp "\\`UC[A-Za-z0-9_-]\\{22\\}\\'"
+  "Matches a YouTube channel id, same shape yt-feedgen validates.")
+
+(defun my/rss--ytdlp-channel-id (url)
+  "Channel id when URL is one of the local ytdlp feeds, else nil."
+  (let ((dir (file-name-as-directory (expand-file-name my/rss-ytdlp-dir)))
+        (prefix "file://"))
+    (when (string-prefix-p prefix url)
+      (let ((path (substring url (length prefix))))
+        (when (and (string-prefix-p dir path)
+                   (string-suffix-p ".xml" path))
+          (let ((base (file-name-base path)))
+            (and (string-match-p my/rss--channel-id-regexp base) base)))))))
+
+(defun my/elfeed--feed-id-at-point ()
+  "Feed id owning the entry at point, in either elfeed buffer."
+  (let ((entry (if (derived-mode-p 'elfeed-show-mode)
+                   elfeed-show-entry
+                 (elfeed-search-selected t))))
+    (unless entry
+      (user-error "No elfeed entry at point"))
+    ;; The id is the `elfeed-feeds' url, i.e. the file:// one for ytdlp
+    ;; rows; `elfeed-feed-url' is the same string today but is whatever
+    ;; the last parse set it to.
+    (elfeed-feed-id (elfeed-entry-feed entry))))
+
+(defun my/elfeed-refresh-feed (url)
+  "Update the single feed URL, regenerating it first if it is a ytdlp feed."
+  (interactive (list (elfeed--prompt-feed)))
+  (let ((cid (my/rss--ytdlp-channel-id url)))
+    (if (null cid)
+        (progn
+          (message "elfeed: updating %s" url)
+          (elfeed-update-feed url))
+      (let ((program (expand-file-name my/rss-ytdlp-program)))
+        (unless (file-executable-p program)
+          (user-error "yt-feedgen is not executable at %s" program))
+        (message "yt-feedgen: refreshing %s..." cid)
+        (make-process
+         :name (concat "yt-feedgen-" cid)
+         :buffer (get-buffer-create "*yt-feedgen*")
+         :command (list program "--only" cid)
+         :noquery t
+         :sentinel
+         (lambda (proc _event)
+           (when (memq (process-status proc) '(exit signal))
+             (if (/= (process-exit-status proc) 0)
+                 (message "yt-feedgen failed for %s -- see *yt-feedgen*" cid)
+               (run-hooks 'elfeed-update-init-hook)
+               (elfeed--update-feed url)
+               (message "yt-feedgen: %s refreshed, elfeed re-reading feed"
+                        cid)))))))))
+
+(defun my/elfeed-refresh-feed-at-point ()
+  "Refresh the feed owning the entry at point."
+  (interactive)
+  (my/elfeed-refresh-feed (my/elfeed--feed-id-at-point)))
+
+(define-key elfeed-search-mode-map (kbd "R") 'my/elfeed-refresh-feed-at-point)
+
 ;; worldstarhiphop.com's RSS embeds raw Windows-1252 smart-quote/dash
 ;; bytes inside a feed declared as UTF-8. Those bytes aren't valid
 ;; UTF-8 on their own, so after elfeed reads the response they're left
