@@ -20,3 +20,18 @@ if [ -z "${DISPLAY}" ] && [ "$(tty)" = "/dev/tty1" ]; then
     eval "$(ssh-agent)" > /dev/null
     ssh-add
 fi
+
+# LFS's /etc/profile appends /usr/sbin for root only, so as john the
+# iproute2 tools are on disk but off PATH. That turns the tunnel
+# verification step in the RCE foundation-db SOP -- `ss -tlnp | grep 14330`
+# -- into "ss: command not found", which greps to nothing and reads as a
+# dead tunnel rather than a missing binary. ss, ip and friends work fine
+# unprivileged for our own sockets. Appended, not prepended, so a
+# user-installed tool of the same name still wins. /sbin is a symlink to
+# usr/sbin here, so it needs no separate entry -- same test /etc/profile uses.
+if [ -d /usr/sbin ] ; then
+    pathappend /usr/sbin
+fi
+if [ -d /sbin ] && [ ! -L /sbin ] ; then
+    pathappend /sbin
+fi
