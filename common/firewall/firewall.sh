@@ -25,6 +25,15 @@ sudo bash -c 'echo 0 > /proc/sys/net/ipv4/conf/default/accept_source_route'
 sudo bash -c 'echo 1 > /proc/sys/net/ipv4/tcp_syncookies'
 
 # Disable ICMP Redirect Acceptance
+# conf/all as well as conf/default -- writing only `default` does NOT disable it.
+# The kernel's IN_DEV_RX_REDIRECTS is an OR of conf/all and the per-interface value
+# whenever forwarding is off, and conf/all/accept_redirects defaults to 1, so `all`
+# alone decides the answer no matter what the interfaces say. `default` is only the
+# template copied into interfaces brought up later, so it cannot fix one that already
+# exists. Found 2026-09-22: this box was reading conf/all/accept_redirects = 1 with a
+# firewall that believed it had turned redirects off. The same bug is in BLFS's own
+# Personal Firewall example (see agent-built-lfs BOOK-PATCHES.md item 3).
+sudo bash -c 'echo 0 > /proc/sys/net/ipv4/conf/all/accept_redirects'
 sudo bash -c 'echo 0 > /proc/sys/net/ipv4/conf/default/accept_redirects'
 
 # Do not send Redirect Messages
