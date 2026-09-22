@@ -12,13 +12,13 @@ if [ -d "$HOME/.local/bin" ] ; then
     pathprepend "$HOME/.local/bin"
 fi
 
-# 'first' login on the physical console: mount the encrypted volume and
-# bring up the firewall before anything else runs.
+# 'first' login on the physical console: bring up the firewall before
+# anything else runs. No mount-crypt.sh here: server has no LUKS volume,
+# and the ~/Scripts copy targets the laptop's /dev/nvme0n1p3. No ssh-agent
+# either: common/ssh/agent-bootstrap.sh (via ~/.bashrc) already started the
+# shared agent, and a second `eval $(ssh-agent)` would shadow it.
 if [ -z "${DISPLAY}" ] && [ "$(tty)" = "/dev/tty1" ]; then
-    "$HOME/Scripts/mount-crypt.sh"
     "$HOME/Scripts/firewall.sh"
-    eval "$(ssh-agent)" > /dev/null
-    ssh-add
 fi
 
 # LFS's /etc/profile appends /usr/sbin for root only, so as john the

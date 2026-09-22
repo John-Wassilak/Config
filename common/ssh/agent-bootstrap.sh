@@ -26,7 +26,11 @@ _ifd_agent_alive() {
     [ $? -ne 2 ]
 }
 
+# The socket's directory may not exist yet: on server (LFS, no pam_systemd)
+# /etc/profile only defaults XDG_RUNTIME_DIR to /tmp/xdg-$USER, it never
+# creates it, and ssh-agent -a will not bind into a missing directory.
 _ifd_agent_start() {
+    mkdir -p -m 700 "$(dirname "$IFD_SSH_AGENT_SOCK")"
     rm -f "$IFD_SSH_AGENT_SOCK"
     ssh-agent -a "$IFD_SSH_AGENT_SOCK" >/dev/null 2>&1
 }
