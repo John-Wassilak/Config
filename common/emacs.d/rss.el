@@ -92,6 +92,18 @@ instead of pointing elfeed at a file feedgen will never write."
   (setopt elfeed-curl-extra-arguments '("-A" "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"))
   (setopt url-queue-timeout 30)
   (setopt elfeed-log-level 'warn)
+  ;; elfeed 20260829 added `elfeed-search-max-entries', defaulting to 500.
+  ;; The cap is applied after filtering and sorting, so the oldest matches
+  ;; are dropped silently -- the only sign is a "[Extend truncated list]"
+  ;; line below the last row, easy to miss. With ~150 unread entries a day
+  ;; arriving, 500 rows covers barely three days, which reads as a feed
+  ;; that stopped updating rather than as a display limit.
+  ;;
+  ;; Uncapping it costs about 6.7s to print the ~23k entries the default
+  ;; "@6months +unread" filter matches here, and that print runs again on
+  ;; every re-render, so keep a cap and set it wide enough to hold a
+  ;; couple of weeks: 2000 rows is roughly 0.6s.
+  (setopt elfeed-search-max-entries 2000)
   (my/set-24hr-timer "01:00am" 'my/elfeed-update-staggered))
 
 ;; `elfeed-update' queues every feed at once, so spacing the requests out

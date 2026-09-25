@@ -1,5 +1,9 @@
 (define-key prog-mode-map (kbd "C-<return>") 'recompile)
 
+;; csv mode
+(rc/require 'csv-mode)
+(define-key csv-mode-map (kbd "C-<return>") 'recompile)
+
 ;; c mode
 ;; need to clone, not in melpa
 (add-to-list 'load-path "~/.emacs.d/simpc-mode/")

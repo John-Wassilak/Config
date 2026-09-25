@@ -3,3 +3,5 @@
 REPO_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../.." && pwd)"
 source "$REPO_DIR/common/bash/bashrc.common"
 source "$REPO_DIR/hosts/laptop/bash/bashrc.local"
+. "/home/john/.deno/env"
+source /home/john/.local/share/bash-completion/completions/deno.bash
