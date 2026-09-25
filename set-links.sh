@@ -52,11 +52,6 @@ case "$HOST" in
         links["$HOME/start-awesome.sh"]="$REPO_DIR/hosts/server/start-awesome.sh"
         links["$HOME/.bashrc"]="$REPO_DIR/hosts/server/bash/bashrc"
         links["$HOME/.bash_profile"]="$REPO_DIR/hosts/server/bash/bash_profile"
-        # Single file, not the whole ~/Scripts dir -- the rest of it is
-        # untracked. Invoked by hosts/server/bash/bash_profile.local at
-        # console login. Not linked on laptop yet: that host has its own
-        # copy with rules this one has never seen, so it needs a diff first.
-        links["$HOME/Scripts/firewall.sh"]="$REPO_DIR/common/firewall/firewall.sh"
         ;;
     *)
         echo "No hosts/$HOST directory — only common links will be applied."
