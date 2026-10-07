@@ -104,6 +104,13 @@ hl.on("hyprland.start", function()
     -- bus name that is not there yet.
     hl.exec_cmd("bash -c 'mountpoint -q /mnt/crypt && exec nextcloud --background'")
 
+    -- Desktop pop-ups for the kalshi-daemon container, which has no session
+    -- bus: the relay turns the lines it appends to data/daemon/alerts.jsonl
+    -- into notify-send calls. It lives on the LUKS volume, so wait for the
+    -- unlock instead of giving up like Nextcloud above; waiting is harmless
+    -- here, since the relay only reads. One instance at a time (it locks).
+    hl.exec_cmd("bash -c 'until mountpoint -q /mnt/crypt; do sleep 30; done; exec python3 /mnt/crypt/john/nextcloud/repos/kalshi/docker/alert_relay.py'")
+
     -- prime the automation pass store's passphrase cache once at login (8h
     -- ttl, see ~/.gnupg-auto/gpg-agent.conf) so scripts/cron never prompt
     -- afterward
