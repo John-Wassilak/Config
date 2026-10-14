@@ -104,7 +104,11 @@ instead of pointing elfeed at a file feedgen will never write."
   ;; every re-render, so keep a cap and set it wide enough to hold a
   ;; couple of weeks: 2000 rows is roughly 0.6s.
   (setopt elfeed-search-max-entries 2000)
-  (my/set-24hr-timer "01:00am" 'my/elfeed-update-staggered))
+  (my/set-24hr-timer "01:00am" 'my/elfeed-update-staggered)
+  ;; elfeed only writes the index on quitting the search buffer or a clean
+  ;; exit, so a crash drops everything fetched since. The staggered update
+  ;; is done well before 3am.
+  (my/set-24hr-timer "03:00am" 'elfeed-db-save))
 
 ;; `elfeed-update' queues every feed at once, so spacing the requests out
 ;; keeps ~265 youtube.com feeds from going off as one burst.
