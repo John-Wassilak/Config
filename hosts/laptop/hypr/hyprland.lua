@@ -124,8 +124,9 @@ end)
 
 hl.config({
     input = {
-        kb_layout  = "us",
-        kb_options = "caps:escape",
+        kb_layout  = "us,vn",
+        kb_variant = ",us",
+        kb_options = "caps:escape,grp:alt_shift_toggle",
     },
     general = {
         gaps_in     = 5,
