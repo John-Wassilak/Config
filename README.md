@@ -52,3 +52,13 @@ ERC's own names (`#emacs`, `#2600`, a nick) — prefixing those breaks buffer
 reuse, since ERC locates a target buffer by the name it computes and does that
 in several places with the bare target name. `C-c C-i` runs
 `erc-switch-to-buffer`, which completes over ERC buffers only.
+
+## System files (laptop)
+Files outside `$HOME` are copied into place as root, not symlinked by
+`set-links.sh`. Each file's header comment has its install commands.
+
+- `hosts/laptop/fan/` — hysteresis fan control service for `thinkpad_acpi`.
+- `hosts/laptop/udev/50-dock-usb-power.rules` — keeps the OneLink Plus dock's
+  USB 2.0 hubs and the C920 webcam out of runtime autosuspend, to stop the dock
+  dropping keyboard, mouse and audio for ~10s at a time. Goes in
+  `/etc/udev/rules.d/`.

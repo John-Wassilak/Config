@@ -1,0 +1,27 @@
+# Keep the ThinkPad OneLink Plus dock's USB 2.0 side out of runtime
+# autosuspend. The dock's VIA hub at 1-4 throws a burst of -71 (EPROTO)
+# errors every day or so, and ~10s later the kernel drops and
+# re-enumerates everything behind it: keyboard, mouse, dock audio and
+# the C920 webcam. The hubs and the webcam had power/control=auto; the
+# keyboard, mouse and dock audio were already "on".
+#
+# Install (as root):
+#   install -m 644 50-dock-usb-power.rules /etc/udev/rules.d/
+#   udevadm control --reload
+#   udevadm trigger --action=add --subsystem-match=usb
+#
+# Check: cat /sys/bus/usb/devices/1-4*/power/control  (all "on")
+
+ACTION!="add", GOTO="dock_usb_power_end"
+SUBSYSTEM!="usb", GOTO="dock_usb_power_end"
+ENV{DEVTYPE}!="usb_device", GOTO="dock_usb_power_end"
+
+# VIA Labs hubs inside the dock (1-4 and 1-4.1)
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="1018", ATTR{power/control}="on"
+ATTR{idVendor}=="17ef", ATTR{idProduct}=="1019", ATTR{power/control}="on"
+# Genesys Logic hub inside the dock (1-4.2)
+ATTR{idVendor}=="05e3", ATTR{idProduct}=="0608", ATTR{power/control}="on"
+# Logitech C920 on the dock's port 4, where today's errors started
+ATTR{idVendor}=="046d", ATTR{idProduct}=="082d", ATTR{power/control}="on"
+
+LABEL="dock_usb_power_end"
