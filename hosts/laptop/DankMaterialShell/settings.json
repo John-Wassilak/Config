@@ -35,6 +35,8 @@
   "fontWeight": 600,
   "batteryCriticalNotificationType": 0,
   "matugenTemplateNeovim": true,
+  "notificationDedupeEnabled": false,
+  "notificationHistoryMaxCount": 100,
   "osdMediaPlaybackEnabled": true,
   "osdPowerProfileEnabled": true,
   "barConfigs": [
