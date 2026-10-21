@@ -27,9 +27,9 @@
 (setopt erc-autojoin-channels-alist
         '((irc:Libera.Chat "#lfs" "#lfs-support"
                            "#linux" "#security"
-                           "#fsf" "#gnu" "#systemcrafters")
+                           "#fsf" "#gnu" "#systemcrafters" "#uxn")
           (irc:2600net     "#2600" "#offthehook" "#offthewall"
-                           "#secnews" "#hamradio")))
+                           "#hamradio")))
 
 
 ;;; --- auth ---------------------------------------------------------
@@ -65,7 +65,17 @@
 
 ;;; --- display ------------------------------------------------------
 
-(setopt erc-modules (seq-union erc-modules '(nicks scrolltobottom services)))
+(setopt erc-modules (seq-union erc-modules
+                               '(keep-place-indicator nicks scrolltobottom services)))
+
+;; Mark where we left off in each buffer: a fringe arrow plus a
+;; highlighted line. With `follow', the marker moves up to the window's
+;; top line when the last window showing the buffer switches away, but
+;; only if it sits above that line -- so it never moves backward.
+(setopt erc-keep-place-indicator-follow t)
+
+(keymap-set erc-mode-map "C-c C-SPC" #'erc-keep-place-goto)
+(keymap-set erc-mode-map "C-c C-m" #'erc-keep-place-move)
 (setopt erc-fill-function #'erc-fill-wrap)
 (setopt erc-auto-query 'bury)
 (setopt erc-kill-buffer-on-part t)
