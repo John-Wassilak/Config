@@ -25,11 +25,11 @@
 ;; Keyed on the `:id' above rather than the network name: a connection
 ;; opened with an `:id' is looked up by it (`erc-autojoin-server-match').
 (setopt erc-autojoin-channels-alist
-        '((irc:Libera.Chat "#lfs" "#lfs-support"
-                           "#linux" "#security"
+        '((irc:Libera.Chat "#lfs" "#lfs-support" "#libera"
+                           "#linux" "#security" "#th3g3ntl3man"
                            "#fsf" "#gnu" "#systemcrafters" "#uxn")
           (irc:2600net     "#2600" "#offthehook" "#offthewall"
-                           "#hamradio")))
+                           "#hamradio" "music")))
 
 
 ;;; --- auth ---------------------------------------------------------
@@ -94,18 +94,20 @@
 ;; insert entirely when `erc-hide-current-message-p' says so), so they
 ;; cost no buffer at all.
 ;;
-;; 324 RPL_CHANNELMODEIS, 329 RPL_CREATIONTIME, 333 RPL_TOPICWHOTIME and
-;; 353 RPL_NAMEREPLY are the burst a server sends on every join; 301/305/
-;; 306 are away notices. 332 RPL_TOPIC (the topic text) and 477 ("you
-;; must be identified to join") stay visible -- the first is worth
-;; reading once per join, the second is an error we need to see.
+;; 324 RPL_CHANNELMODEIS, 329 RPL_CREATIONTIME and 333 RPL_TOPICWHOTIME
+;; are part of the burst a server sends on every join; 301/305/306 are
+;; away notices. 332 RPL_TOPIC (the topic text), 353 RPL_NAMEREPLY (the
+;; user list) and 477 ("you must be identified to join") stay visible.
+;; 353 is both the join-time user list and the reply to /NAMES, so
+;; hiding it blanks out both. /WHO replies (352, 315) aren't listed here
+;; either.
 ;;
 ;; Server PING/PONG is already silent: `erc-server-PING' only displays
 ;; when `erc-verbose-server-ping' is non-nil, which it isn't by default,
 ;; and it would land in the server buffer regardless.
 (setopt erc-hide-list
         '("JOIN" "PART" "QUIT" "NICK" "MODE" "AWAY"
-          "301" "305" "306" "324" "329" "333" "353"))
+          "301" "305" "306" "324" "329" "333"))
 
 ;; For a softer version, drop the JOIN/PART/QUIT entries from
 ;; `erc-hide-list' and use these instead: they hide comings and goings
@@ -121,6 +123,43 @@
 ;; `erc-network-hide-list' and `erc-channel-hide-list' take the same
 ;; message types scoped to one network or one channel, if some noisy
 ;; channel needs more hushing than the rest.
+
+
+;;; --- channel list -------------------------------------------------
+;;
+;; /LIST fills a *Channels of <server>* buffer in whatever order the
+;; server sends. Clicking its "# Users" header only sorts ascending, so
+;; sort it biggest-first once the list ends (323 RPL_LISTEND), and on
+;; `s' to re-sort while it's still filling.
+;;
+;; The 323 hook goes in at depth -96, local to the server buffer, so it
+;; runs ahead of erc-list's own one-shot 323 handler (depth -95): that
+;; one returns non-nil, which stops `run-hook-with-args-until-success'
+;; before any later hook gets a turn.
+
+(require 'erc-list)
+
+(defun my/erc-list-sort-by-users ()
+  "Sort the ERC channel list by user count, most first."
+  (interactive)
+  (let ((inhibit-read-only t))
+    (sort-numeric-fields 2 (point-min) (point-max))
+    (reverse-region (point-min) (point-max))
+    (goto-char (point-min))))
+
+(defun my/erc-list--sort-at-end (server-buffer)
+  (with-current-buffer server-buffer
+    (letrec ((fn (lambda (_proc _parsed)
+                   (with-current-buffer server-buffer
+                     (remove-hook 'erc-server-323-functions fn t)
+                     (when (buffer-live-p erc-list-buffer)
+                       (with-current-buffer erc-list-buffer
+                         (my/erc-list-sort-by-users))))
+                   nil)))
+      (add-hook 'erc-server-323-functions fn -96 t))))
+
+(advice-add 'erc-list-install-322-handler :after #'my/erc-list--sort-at-end)
+(keymap-set erc-list-menu-mode-map "s" #'my/erc-list-sort-by-users)
 
 
 ;;; --- buffer names -------------------------------------------------
