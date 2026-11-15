@@ -43,6 +43,12 @@ hl.env("_JAVA_AWT_WM_NONREPARENTING",     "1")
 hl.env("SDL_VIDEODRIVER",                 "wayland")
 hl.env("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1")
 hl.env("QT_AUTO_SCREEN_SCALE_FACTOR",     "1")
+-- fcitx5 (Vietnamese Telex via Bamboo). GTK_IM_MODULE is left unset on purpose:
+-- Wayland GTK apps reach fcitx5 through text-input-v3, and forcing the im-module
+-- path breaks that. XMODIFIERS covers XWayland apps through XIM.
+hl.env("QT_IM_MODULE",                    "fcitx")
+hl.env("XMODIFIERS",                      "@im=fcitx")
+hl.env("SDL_IM_MODULE",                   "fcitx")
 
 
 -------------------
@@ -62,6 +68,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("gnome-keyring-daemon --start --components=pkcs11,secrets")
     hl.exec_cmd("swayidle -w timeout 600 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on'")
     hl.exec_cmd("dms run")
+    hl.exec_cmd("fcitx5 -d --replace")
     hl.exec_cmd("tailscale systray")
     hl.exec_cmd("wlsunset -l 35.46 -L -97.32")
     hl.exec_cmd("wl-paste --type text --watch cliphist store")

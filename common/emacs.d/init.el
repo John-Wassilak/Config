@@ -7,7 +7,7 @@
 (setq custom-file "~/.emacs.d/custom.el")
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-(global-set-key [?\s-t] (lambda () (interactive) (vterm t)))
+(global-set-key [?\s-t] #'ghostel-new)
 (global-set-key (kbd "C-.") 'duplicate-line)
 
 (server-start) ;; needed by sub-modules
@@ -24,4 +24,5 @@
   (load-file (expand-file-name "rss.el" here))
   (load-file (expand-file-name "file.el" here))
   (load-file (expand-file-name "email.el" here))
-  (load-file (expand-file-name "irc.el" here)))
+  (load-file (expand-file-name "irc.el" here))
+  (load-file (expand-file-name "agents.el" here)))

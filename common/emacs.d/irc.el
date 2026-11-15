@@ -29,7 +29,7 @@
                            "#linux" "#security" "#th3g3ntl3man"
                            "#fsf" "#gnu" "#systemcrafters" "#uxn")
           (irc:2600net     "#2600" "#offthehook" "#offthewall"
-                           "#hamradio" "music")))
+                           "#hamradio" "#music")))
 
 
 ;;; --- auth ---------------------------------------------------------

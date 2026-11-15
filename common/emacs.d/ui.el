@@ -6,6 +6,7 @@
                 shell-mode-hook
                 treemacs-mode-hook
                 eshell-mode-hook
+		ghostel-mode-hook
                 vterm-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
